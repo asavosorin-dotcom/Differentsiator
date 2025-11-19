@@ -18,6 +18,8 @@ DiffNode_t* DiffReadNode(int* pos, char* buffer);
 DiffNode_t* DiffNodeMake(const char* value_node);
 void DiffPrintNode(const DiffNode_t* node, FILE* file_Diff);
 
+double DiffSolveExpresion(DiffNode_t* root);
+
 char* Read_title(int* pos, char* buffer);
 int isvariable(const char* string);
 int isoperator(const char* string);

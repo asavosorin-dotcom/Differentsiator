@@ -91,12 +91,14 @@ DiffNode_t* DiffNodeMake(const char* value_node)
     Type_t type = NUM;
     Value_t value = {};
 
-    printf("[%s]", value_node);
+    // printf("[%s]", value_node);
 
-    int num = 0;
-    if ((num = atoi(value_node)) != 0 || (strcmp(value_node, "0") == 0))
+    double num = 0;
+
+    char** end_ptr = NULL; //!!!
+
+    if ((num = strtod(value_node, end_ptr)) != 0 || (strcmp(value_node, "0") == 0))
     {
-        printf("atoi [%d]", atoi(value_node));
         type = NUM;
         printf("%d\n", num);
         value.num = num;
@@ -199,7 +201,40 @@ int comporator_var(const void* var1, const void* var2)
         return 1;
 }
 
-char* Read_title(int* pos, char* buffer) // можно возвращать len и вручную изменять указатель, но потом не вызывать strlen()
+double DiffSolveExpresion(DiffNode_t* root)
+{
+    switch (root->type)
+    {
+        case NUM:
+            return root->value.num;
+
+        case VAR:
+            return arr_variable[root->value.index_var].value;
+
+        case OP:
+            double num1 = DiffSolveExpresion(root->left);
+            double num2 = DiffSolveExpresion(root->right);
+
+            switch (root->value.oper)
+            {
+            case ADD:
+                return num1 + num2;
+            
+            case SUB:
+                return num1 - num2;
+
+            case MUL:
+                return num1 * num2;
+
+            case DIV:
+                return num1 / num2;
+            default:
+                break;
+            }
+    }
+}
+
+char* Read_title(int* pos, char* buffer) // можно считывать double здесь
 {
     int len = 0;
     *pos += skip_space(buffer + *pos);

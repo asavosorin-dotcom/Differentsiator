@@ -28,6 +28,9 @@ int main(int argc, char* argv[])
     int pos = 0;
     DiffNode_t* root = DiffReadNode(&pos, code_tree);
 
+    double x = DiffSolveExpresion(root);
+    printf("x = %lf", x);
+
     // Value_t root_val = {};
     // root_val.oper = MUL;
     // DiffNode_t* root = DiffNodeCtor(OP, &root_val);
