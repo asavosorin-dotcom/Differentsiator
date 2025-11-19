@@ -54,6 +54,11 @@ DiffNode_t* DiffReadNode(int* pos, char* buffer)
         char* value_node = Read_title(pos, buffer);
         DiffNode_t* node = DiffNodeMake(value_node);
 
+        if (node == NULL)
+        {
+            return NULL;
+        }
+
         *pos += skip_space(buffer + *pos);
 
         node->left = DiffReadNode(pos, buffer);
@@ -104,10 +109,11 @@ DiffNode_t* DiffNodeMake(const char* value_node)
         value.num = num;
     }
 
-    else if ((index = isvariable(value_node)) != -1) // дописать функции на проверку является ли строка переменной или оператором
+    else if ((index = isvariable(value_node)) != -1)
     {
         type = VAR;
         value.index_var = index;
+        arr_variable[index].flag =  YES;
     }
     else if ((index = isoperator(value_node)) != -1)
     {
@@ -116,11 +122,26 @@ DiffNode_t* DiffNodeMake(const char* value_node)
     }
     else
     {
-        printf(BOLD_RED "Wrong format code_tree %s" RESET, value_node);
+        printf(BOLD_RED "Wrong format code_tree %s\n" RESET, value_node);
+        fflush(stdout);
         return NULL;
     }
 
     return DiffNodeCtor(type, &value);
+}
+
+void GetVariableValue(void)
+{
+    double num = 0;
+    for (int i = 0; i < VAR_CAPASITY; i++)
+    {
+        if (arr_variable[i].flag)
+        {
+            printf("Enter value %s: ", arr_variable[i].name_var);
+            scanf("%lf", &num);
+            arr_variable[i].value = num;
+        }
+    }
 }
 
 void DiffPrintNode(const DiffNode_t* node, FILE* file_Diff)
@@ -203,6 +224,12 @@ int comporator_var(const void* var1, const void* var2)
 
 double DiffSolveExpresion(DiffNode_t* root)
 {
+    if (root == NULL)
+    {
+        // PRINT_ERR("null pointer node")
+        return 0;
+    }
+    
     switch (root->type)
     {
         case NUM:
@@ -228,11 +255,23 @@ double DiffSolveExpresion(DiffNode_t* root)
 
             case DIV:
                 return num1 / num2;
+
+            case DEG:
+                return pow(num1, num2);
+
+            case SIN:
+                return sin(num2);
+        
+            case COS:
+                return cos(num2);
+
             default:
                 break;
             }
     }
 }
+
+
 
 char* Read_title(int* pos, char* buffer) // можно считывать double здесь
 {

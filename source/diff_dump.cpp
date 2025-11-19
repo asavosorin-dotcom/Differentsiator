@@ -6,7 +6,9 @@ static int index_png = 0;
 
 void DiffDumpNode(DiffNode_t* node, FILE* file_dump)
 {       
-    #define PRINT_NODE_IMAGE(print_type, ...) PRINT_IMAGE("\tnode%p[label = \"{TYPE: %d |VAL: " print_type " | {%p | %p}}\", shape = Mrecord, style = \"filled\", fillcolor = \"#C0FFC0\"]\n", node, node->type, __VA_ARGS__, node->left, node->right);
+    #define PRINT_NODE_IMAGE(print_type, ...) PRINT_IMAGE("\tnode%p[label = \"{TYPE: %s |VAL: " print_type " | {%p | %p}}\", shape = Mrecord, style = \"filled\", fillcolor = \"#C0FFC0\"]\n", node, arr_types[node->type] , __VA_ARGS__, node->left, node->right);
+
+    // добавить разные формы и цвета для разных типов ячеек 
 
     switch (node->type)
     {

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <math.h>
 
 #include "diff_struct.h"
 #include "work_with_text.h"
@@ -23,5 +24,9 @@ double DiffSolveExpresion(DiffNode_t* root);
 char* Read_title(int* pos, char* buffer);
 int isvariable(const char* string);
 int isoperator(const char* string);
+
+void GetVariableValue(void);
+
+#define PRINT_ERR(...) printf(RED "%s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n" RESET);
 
 #endif

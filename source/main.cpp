@@ -28,6 +28,16 @@ int main(int argc, char* argv[])
     int pos = 0;
     DiffNode_t* root = DiffReadNode(&pos, code_tree);
 
+    if (root == NULL)
+    {
+        DiffDtor(root);
+        free(code_tree - 1);
+        fclose(file_diff);
+        return 0;
+    }
+    
+    GetVariableValue();
+
     double x = DiffSolveExpresion(root);
     printf("x = %lf", x);
 
