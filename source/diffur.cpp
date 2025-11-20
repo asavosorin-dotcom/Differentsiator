@@ -1,9 +1,10 @@
 #include "diffur.h"
 
-DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val)
+DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent)
 {
     DiffNode_t* node = (DiffNode_t* ) calloc(1, sizeof(DiffNode_t));
     node->type = type;
+    node->value = *val;
 
     switch (type)
     {
@@ -23,6 +24,10 @@ DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val)
             printf(BOLD_RED "This type doesn't exist\n" RESET);
     }
 
+    node->left  = NULL;
+    node->right = NULL;
+    node->parent = parent;
+
     return node;
 }
 
@@ -41,14 +46,10 @@ DiffNode_t* DiffReadNode(int* pos, char* buffer)
 {
     // printf(BOLD_BLUE "In beginnig read: [%s]\n" RESET, buffer + *pos);
 
-    static int rank = 0;
-    rank++;
-
     *pos += skip_space(buffer + *pos);
 
     if (buffer[*pos] == '(')
     {
-        // DiffNode_t* node = DiffNodeCtor(); // присобачить в нужное место
         (*pos)++; // пропуск скобки
 
         char* value_node = Read_title(pos, buffer);
@@ -62,11 +63,15 @@ DiffNode_t* DiffReadNode(int* pos, char* buffer)
         *pos += skip_space(buffer + *pos);
 
         node->left = DiffReadNode(pos, buffer);
-        rank--;
         
+        if (node->left != NULL)
+            node->left->parent = node;
+
         node->right = DiffReadNode(pos, buffer);
-        rank--;
         
+        if (node->right != NULL)
+            node->right->parent = node;
+
         *pos += skip_space(buffer + *pos);
 
         if (buffer[*pos] == ')')
@@ -84,7 +89,7 @@ DiffNode_t* DiffReadNode(int* pos, char* buffer)
     }
     else 
     {
-        printf(RED "[%s]\n" RESET, buffer);
+        printf(RED "[%s]\n" RESET, buffer + *pos);
         // printf(RED "ERROR format code tree\n" RESET);
         return NULL;
     }
@@ -100,12 +105,10 @@ DiffNode_t* DiffNodeMake(const char* value_node)
 
     double num = 0;
 
-    char** end_ptr = NULL; //!!!
-
-    if ((num = strtod(value_node, end_ptr)) != 0 || (strcmp(value_node, "0") == 0))
+    if ((num = strtod(value_node, NULL)) != 0 || (strcmp(value_node, "0") == 0))
     {
         type = NUM;
-        printf("%d\n", num);
+        printf("%lf\n", num);
         value.num = num;
     }
 
@@ -127,7 +130,7 @@ DiffNode_t* DiffNodeMake(const char* value_node)
         return NULL;
     }
 
-    return DiffNodeCtor(type, &value);
+    return DiffNodeCtor(type, &value, NULL);
 }
 
 void GetVariableValue(void)
@@ -254,7 +257,7 @@ double DiffSolveExpresion(DiffNode_t* root)
                 return num1 * num2;
 
             case DIV:
-                return num1 / num2;
+                return num1 / num2; // 0
 
             case DEG:
                 return pow(num1, num2);
@@ -271,7 +274,96 @@ double DiffSolveExpresion(DiffNode_t* root)
     }
 }
 
+DiffNode_t* DiffNewNodeNUM(double num)
+{
+    Value_t value = {};
+    value.num = num;
+    DiffNode_t* node = DiffNodeCtor(NUM, &value, NULL);
+    return node;
+}
 
+DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* right)
+{
+    Value_t value = {};
+    value.oper = val;
+    DiffNode_t* node = DiffNodeCtor(OP, &value, NULL);
+
+    node->left = left;
+    if (node->left != NULL)
+        node->left->parent = node;
+
+    node->right = right;
+    if (node->right != NULL)
+        node->right->parent = node;
+
+    return node;
+}
+
+#define copyLeft   DiffCopyNode(node->left)
+#define copyRight  DiffCopyNode(node->right)
+#define diffLeft   DifferentExpression(node->left , d_var)
+#define diffRight  DifferentExpression(node->right, d_var)
+
+#define NUM_(num)                   DiffNewNodeNUM(num)
+#define ADD_(node_left, node_right) DiffNewNodeOP(ADD, node_left, node_right)
+#define SUB_(node_left, node_right) DiffNewNodeOP(SUB, node_left, node_right)
+#define MUL_(node_left, node_right) DiffNewNodeOP(MUL, node_left, node_right)
+#define DIV_(node_left, node_right) DiffNewNodeOP(DIV, node_left, node_right)
+#define SIN_(node_right)            DiffNewNodeOP(SIN, NULL, node_right)
+#define COS_(node_right)            DiffNewNodeOP(COS, NULL, node_right)
+
+DiffNode_t* DiffCopyNode(DiffNode_t* node)
+{
+    DiffNode_t* new_node = DiffNodeCtor(node->type, &(node->value), node->parent);
+
+    if (node->left != NULL)
+        new_node->left = DiffCopyNode(node->left);
+    
+    if (node->right != NULL)
+        new_node->right = DiffCopyNode(node->right);
+
+    return new_node;
+}
+
+DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
+{
+    Value_t val = {};
+    switch (node->type)
+    {
+        case NUM:
+            return NUM_(0);
+
+        case VAR:
+        {
+            int index_var = isvariable(d_var);
+            double num = (index_var == node->value.index_var) ? 1 : 0;
+            return NUM_(num);
+        }
+
+        case OP:
+            switch (node->value.oper)
+            {
+                case ADD:
+                    return ADD_(diffLeft, diffRight);
+
+                case SUB:
+                    return SUB_(diffLeft, diffRight);
+
+                case MUL:
+                    return ADD_(MUL_(diffLeft, copyRight), MUL_(copyLeft, diffRight));
+
+                case DIV:
+                    return DIV_(SUB_(MUL_(diffLeft, copyRight), MUL_(copyRight, diffLeft)), MUL_(copyRight, copyRight));
+                
+                case SIN:
+                    return MUL_(COS_(copyRight), diffRight);
+                
+                case COS:
+                    return MUL_(NUM_(-1), MUL_(SIN_(copyRight), diffRight));;
+            }
+
+    }
+}
 
 char* Read_title(int* pos, char* buffer) // можно считывать double здесь
 {
@@ -282,5 +374,6 @@ char* Read_title(int* pos, char* buffer) // можно считывать double
     *(buffer + *pos + len - 1) = '\0';            // меняет вторую кавычку на 0
 
     (*pos) += len;
+    printf(GREEN "[%s]\n" RESET, buffer + *pos);
     return buffer + *pos - len + 1;
 }

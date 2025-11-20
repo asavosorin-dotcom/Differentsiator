@@ -12,7 +12,7 @@
 
 #include "colors.h"
 
-DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val);
+DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent);
 void        DiffDtor    (DiffNode_t* node);
 
 DiffNode_t* DiffReadNode(int* pos, char* buffer);
@@ -26,6 +26,12 @@ int isvariable(const char* string);
 int isoperator(const char* string);
 
 void GetVariableValue(void);
+
+DiffNode_t* DiffNewNode(Type_t type, Value_t value, DiffNode_t* left, DiffNode_t* right);
+DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* right);
+
+DiffNode_t* DiffCopyNode(DiffNode_t* node);
+DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var);
 
 #define PRINT_ERR(...) printf(RED "%s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n" RESET);
 

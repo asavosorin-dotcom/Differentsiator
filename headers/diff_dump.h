@@ -14,4 +14,6 @@ void DiffDumpNode(DiffNode_t* node, FILE* file_dump);
 void DiffDumpImage(DiffNode_t* node);
 void DiffDump(DiffNode_t* node, const char* text);
 
+void DiffDumpNodeLatex(DiffNode_t* node);
+void DiffDumpLatex(DiffNode_t* node, const char* name);
 #endif

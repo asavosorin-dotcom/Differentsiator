@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
     
     FILE* file_diff = NULL;
  
-    switch (argc)
+    switch (argc) //getopts
     {
         case 2:
         {
@@ -39,8 +39,14 @@ int main(int argc, char* argv[])
     GetVariableValue();
 
     double x = DiffSolveExpresion(root);
-    printf("x = %lf", x);
+    printf("answer1 = %lf\n", x);
 
+    DiffNode_t* dif_root = DifferentExpression(root, "x");
+    double answer2 = DiffSolveExpresion(dif_root);
+
+    printf("answer2 = %lf\n", answer2);
+    DiffDump(dif_root, "dif_tree");
+    DiffDumpLatex(root, "first expression");
     // Value_t root_val = {};
     // root_val.oper = MUL;
     // DiffNode_t* root = DiffNodeCtor(OP, &root_val);
@@ -55,8 +61,10 @@ int main(int argc, char* argv[])
 
     DiffPrintNode(root, file_diff);
 
+
     DiffDump(root, "First dump");
     DiffDtor(root);
+    DiffDtor(dif_root);
 
     free(code_tree - 1);
 

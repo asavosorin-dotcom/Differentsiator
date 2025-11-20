@@ -1,6 +1,7 @@
 #include "diff_dump.h"
 
 FILE* file_htm = fopen("Logfile.htm", "w");
+FILE* file_latex = fopen("dump_latex.tex", "w");
 
 static int index_png = 0;
 
@@ -42,7 +43,7 @@ void DiffDumpNode(DiffNode_t* node, FILE* file_dump)
         PRINT_IMAGE("\tnode%p -> node%p [color = \"red\"]\n", node, node->right);
     }
     
-    #undef PRINT_NODE_IMAGE
+    #undef PRINT_NODE_IMAGE(...)
 }
 
 void DiffDumpImage(DiffNode_t* node)
@@ -78,3 +79,71 @@ void DiffDump(DiffNode_t* node, const char* text)
     
     fflush(file_htm);
 }
+
+#define PRINT_LATEX(...) fprintf(file_latex, __VA_ARGS__)
+
+void DiffDumpNodeLatex(DiffNode_t* node)
+{
+    
+    if (node->parent != NULL)
+    {
+        if (node->parent->type == OP && node->type == OP)
+        {
+            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
+            {
+                PRINT_LATEX("(");
+            }
+        }
+    }
+    
+    if (node->left != NULL)
+        DiffDumpNodeLatex(node->left);
+        
+    switch (node->type)
+    {
+    case NUM:
+        PRINT_LATEX(" %lf", node->value.num);
+        break;
+    
+    case VAR:
+        PRINT_LATEX(" %s", arr_variable[node->value.index_var].name_var);
+        break;
+
+    case OP:
+        PRINT_LATEX(" %s", arr_operators[node->value.oper].name);
+        break;
+        
+    default:
+        break;
+    }
+
+    if (node->right != NULL)
+        DiffDumpNodeLatex(node->right);
+
+    if (node->parent != NULL)
+    {
+        if (node->parent->type == OP && node->type == OP)
+        {
+            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
+            {
+                PRINT_LATEX(")");
+            }
+        }
+    }
+}
+
+void DiffDumpLatex(DiffNode_t* node, const char* name)
+{
+    PRINT_LATEX("\\documentclass{article}\n");
+    PRINT_LATEX("\\title{DEBUG!!!}\n");
+    PRINT_LATEX("\\begin{document}\n");
+    PRINT_LATEX("\\maketitle\n");
+    PRINT_LATEX("\\section{%s}\n", name);
+    PRINT_LATEX("\\Large\n");
+    PRINT_LATEX("$");
+    DiffDumpNodeLatex(node);
+    PRINT_LATEX("$\n");
+    PRINT_LATEX("\\end{document}");
+}
+
+#undef PRINT_LATEX

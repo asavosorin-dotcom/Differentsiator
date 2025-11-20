@@ -25,6 +25,7 @@ struct DiffNode_t
 
     DiffNode_t* left;
     DiffNode_t* right;
+    DiffNode_t* parent;
 };
 
 struct Variable_t
