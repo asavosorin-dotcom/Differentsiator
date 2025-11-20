@@ -49,8 +49,11 @@ int main(int argc, char* argv[])
     DiffDumpLatex(root, "first expression");
 
     DiffOptimizConst(root);
+    DiffDump(root, "after opt 1");
 
-    DiffDump(root, "after opt");
+    DiffOptimizNeytralElem(root);
+    DiffDump(root, "after opt 2");
+
 
     // Value_t root_val = {};
     // root_val.oper = MUL;

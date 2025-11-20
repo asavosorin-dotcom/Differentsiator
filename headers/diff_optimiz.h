@@ -7,5 +7,6 @@
 #include "diffur.h"
 
 DiffNode_t* DiffOptimizConst(DiffNode_t* node);
+DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node);
 
 #endif
