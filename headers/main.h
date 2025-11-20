@@ -5,6 +5,7 @@
 
 #include "diffur.h"
 #include "diff_dump.h"
+#include "diff_optimiz.h"
 
 #include "colors.h"
 #include "work_with_text.h"
