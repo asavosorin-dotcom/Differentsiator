@@ -48,10 +48,7 @@ int main(int argc, char* argv[])
     DiffDump(root, "dif_tree");
     DiffDumpLatex(root, "first expression");
 
-    DiffOptimizConst(root);
-    DiffDump(root, "after opt 1");
-
-    DiffOptimizNeytralElem(root);
+    DiffOptimiz(root);
     DiffDump(root, "after opt 2");
 
 

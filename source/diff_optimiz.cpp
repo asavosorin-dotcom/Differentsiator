@@ -3,6 +3,18 @@
 int nodeisnum(DiffNode_t* node, double num);
 void nodenull(DiffNode_t* node);
 
+static bool flag_change = 0;
+
+#define cpy_right      free(node->left);  \
+                       free(node);        \
+                       node = node->right;\
+                       flag_change = 1;   \
+
+#define cpy_left       free(node->right); \
+                       free(node);        \
+                       node = node->left; \
+                       flag_change = 1;   \
+
 DiffNode_t* DiffOptimizConst(DiffNode_t* node)
 {
     if (node->left != NULL)
@@ -17,6 +29,7 @@ DiffNode_t* DiffOptimizConst(DiffNode_t* node)
     if (node->left->type == NUM && node->right->type == NUM)
     {
         double num = DiffSolveExpresion(node);
+
         node->type = NUM;
         node->value = {};
         node->value.num = num;
@@ -54,16 +67,12 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
             
             else if (nodeisnum(node->left, 1))
             {
-                free(node->left);
-                free(node);
-                node = node->right;
+                cpy_right
             }
 
             else if (nodeisnum(node->right, 1))
             {
-                free(node->right);
-                free(node);
-                node = node->left;
+                cpy_left
             }
 
             return node;
@@ -76,9 +85,7 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
 
             if (nodeisnum(node->right, 1))
             {
-                free(node->right);
-                free(node);
-                node = node->left;
+                cpy_left
             }
 
             return node;
@@ -86,22 +93,32 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
         case ADD: case SUB:
             if (nodeisnum(node->left, 0))
             {
-                free(node->right);
-                free(node);
-                node = node->left;
+                cpy_right
             }
 
-            if (nodeisnum(node->right, 1))
+            if (nodeisnum(node->right, 0))
             {
-                free(node->left);
-                free(node);
-                node = node->right;
+                cpy_left
             }
             return node;
 
         default:
             break;
         }
+    }
+}
+
+
+void DiffOptimiz(DiffNode_t* root)
+{
+    while (1)
+    {
+        flag_change = 0;
+        DiffOptimizConst(root);
+        DiffOptimizNeytralElem(root);
+
+        if (!flag_change)
+            break;
     }
 }
 
@@ -127,4 +144,6 @@ void nodenull(DiffNode_t* node)
 
     node->left = NULL;
     node->right = NULL;
+    
+    flag_change = 1;
 }
