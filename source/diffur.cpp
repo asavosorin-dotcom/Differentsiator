@@ -1,5 +1,7 @@
 #include "diffur.h"
 
+DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var);
+
 DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent)
 {
     DiffNode_t* node = (DiffNode_t* ) calloc(1, sizeof(DiffNode_t));
@@ -263,10 +265,13 @@ double DiffSolveExpresion(DiffNode_t* root)
                 return pow(num1, num2);
 
             case SIN:
-                return sin(num2);
+                return sin(num1);
         
             case COS:
-                return cos(num2);
+                return cos(num1);
+                
+            case LN:
+                return log(num1);            
 
             default:
                 break;
@@ -304,13 +309,18 @@ DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* righ
 #define diffLeft   DifferentExpression(node->left , d_var)
 #define diffRight  DifferentExpression(node->right, d_var)
 
+#define diff(node) DifferentExpression(node, d_var)
+#define DIFF_POW   diff_pow(node, d_var)
+
 #define NUM_(num)                   DiffNewNodeNUM(num)
 #define ADD_(node_left, node_right) DiffNewNodeOP(ADD, node_left, node_right)
 #define SUB_(node_left, node_right) DiffNewNodeOP(SUB, node_left, node_right)
 #define MUL_(node_left, node_right) DiffNewNodeOP(MUL, node_left, node_right)
 #define DIV_(node_left, node_right) DiffNewNodeOP(DIV, node_left, node_right)
-#define SIN_(node_right)            DiffNewNodeOP(SIN, NULL, node_right)
-#define COS_(node_right)            DiffNewNodeOP(COS, NULL, node_right)
+#define COS_(node_left)             DiffNewNodeOP(COS, node_left, NULL)
+#define SIN_(node_left)             DiffNewNodeOP(SIN, node_left, NULL)
+#define DEG_(node_left, node_right) DiffNewNodeOP(DEG, node_left, node_right)
+#define LN_(node_left)             DiffNewNodeOP(LN,  node_left, NULL)
 
 DiffNode_t* DiffCopyNode(DiffNode_t* node)
 {
@@ -327,6 +337,7 @@ DiffNode_t* DiffCopyNode(DiffNode_t* node)
 
 DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
 {
+    DiffDumpLatex(node, "diff");
     Value_t val = {};
     switch (node->type)
     {
@@ -356,13 +367,37 @@ DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
                     return DIV_(SUB_(MUL_(diffLeft, copyRight), MUL_(copyRight, diffLeft)), MUL_(copyRight, copyRight));
                 
                 case SIN:
-                    return MUL_(COS_(copyRight), diffRight);
+                    return MUL_(COS_(copyLeft), diffLeft);
                 
                 case COS:
-                    return MUL_(NUM_(-1), MUL_(SIN_(copyRight), diffRight));;
-            }
+                    return MUL_(NUM_(-1), MUL_(SIN_(copyLeft), diffLeft));
 
+                case LN:
+                    return MUL_(DIV_(NUM_(1), copyLeft), diffLeft);
+
+                case DEG:
+                        return DIFF_POW;
+            }
+            default:
+                return node;
     }
+
+}
+
+DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var)
+{
+    if (node->right->type == NUM)
+    {
+        return MUL_(diffLeft, MUL_(NUM_(node->right->value.num), DEG_(copyLeft, NUM_(node->right->value.num - 1))));
+    }
+
+    if (node->left->type == NUM)
+    {
+        return MUL_(MUL_(LN_(copyLeft), DEG_(copyLeft, copyRight)), diffRight);
+    }
+
+    return MUL_(DEG_(copyLeft, copyRight), diff(MUL_(LN_(copyLeft), copyRight)));
+    return MUL_(DEG_(copyLeft, copyRight), ADD_(MUL_(diff(LN_(copyLeft)), copyRight ), MUL_(LN_(copyLeft), diffRight)));
 }
 
 char* Read_title(int* pos, char* buffer) // можно считывать double здесь

@@ -8,6 +8,7 @@ Operator_t arr_operators[OP_CAPASITY] = {
                                          "^",   CountHash("^"),   "DEG", DEG,
                                          "sin", CountHash("sin"), "SIN", SIN,
                                          "cos", CountHash("cos"), "COS", COS,
+                                         "ln" , CountHash("ln") , "LN",  LN,
                                         };
 
 Variable_t arr_variable[VAR_CAPASITY] = { // узнать у Санька 

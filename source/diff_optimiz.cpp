@@ -5,15 +5,17 @@ void nodenull(DiffNode_t* node);
 
 static bool flag_change = 0;
 
-#define cpy_right      free(node->left);  \
-                       free(node);        \
-                       node = node->right;\
-                       flag_change = 1;   \
+#define cpy_right      DiffNode_t* node_free = node; \
+                       free(node->left);             \
+                       node = node->right;           \
+                       free(node_free);              \
+                       flag_change = 1;              \
 
-#define cpy_left       free(node->right); \
-                       free(node);        \
-                       node = node->left; \
-                       flag_change = 1;   \
+#define cpy_left       DiffNode_t* node_free = node; \
+                       free(node->right);            \
+                       node = node->left;            \
+                       free(node_free);              \
+                       flag_change = 1;              \
 
 DiffNode_t* DiffOptimizConst(DiffNode_t* node)
 {
@@ -97,13 +99,13 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
             }
 
             if (nodeisnum(node->right, 0))
-            {
-                cpy_left
+            {                
+                cpy_left 
             }
             return node;
 
         default:
-            break;
+            return node;
         }
     }
 }

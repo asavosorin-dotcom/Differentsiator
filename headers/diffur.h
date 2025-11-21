@@ -9,7 +9,7 @@
 
 #include "diff_struct.h"
 #include "work_with_text.h"
-
+#include "diff_dump.h"
 #include "colors.h"
 
 DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent);

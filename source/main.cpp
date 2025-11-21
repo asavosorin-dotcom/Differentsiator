@@ -2,6 +2,8 @@
 
 int main(int argc, char* argv[])
 {
+    DiffDumpLatexBegin();
+    
     const char* filenameread = argv[1];
     char* code_tree = CreateBuffer(filenameread).buff + 1;
     
@@ -41,12 +43,16 @@ int main(int argc, char* argv[])
     double x = DiffSolveExpresion(root);
     printf("answer1 = %lf\n", x);
 
-    // DiffNode_t* dif_root = DifferentExpression(root, "x");
-    // double answer2 = DiffSolveExpresion(dif_root);
+    DiffNode_t* dif_root = DifferentExpression(root, "x");
+    double answer2 = DiffSolveExpresion(dif_root);
 
-    // printf("answer2 = %lf\n", answer2);
+    printf("answer2 = %lf\n", answer2);
     DiffDump(root, "dif_tree");
     DiffDumpLatex(root, "first expression");
+
+    DiffOptimiz(dif_root);
+    DiffDumpLatex(dif_root, "first dif expression");
+    DiffDump(dif_root, "123r4");
 
     DiffOptimiz(root);
     DiffDump(root, "after opt 2");
@@ -64,12 +70,12 @@ int main(int argc, char* argv[])
     // val2.num = 13;
     // root->right = DiffNodeCtor(NUM, &val2);
 
-    DiffPrintNode(root, file_diff);
-
+    DiffPrintNode(dif_root, file_diff);
+    DiffDumpLatexEnd();
 
     DiffDump(root, "First dump");
     DiffDtor(root);
-    // DiffDtor(dif_root);
+    DiffDtor(dif_root);
 
     free(code_tree - 1);
 

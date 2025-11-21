@@ -132,18 +132,29 @@ void DiffDumpNodeLatex(DiffNode_t* node)
     }
 }
 
+
+
 void DiffDumpLatex(DiffNode_t* node, const char* name)
 {
-    PRINT_LATEX("\\documentclass{article}\n");
-    PRINT_LATEX("\\title{DEBUG!!!}\n");
-    PRINT_LATEX("\\begin{document}\n");
-    PRINT_LATEX("\\maketitle\n");
     PRINT_LATEX("\\section{%s}\n", name);
     PRINT_LATEX("\\Large\n");
     PRINT_LATEX("$");
     DiffDumpNodeLatex(node);
     PRINT_LATEX("$\n");
+}
+
+void DiffDumpLatexBegin(void)
+{
+    PRINT_LATEX("\\documentclass{article}\n");
+    PRINT_LATEX("\\title{DEBUG!!!}\n");
+    PRINT_LATEX("\\begin{document}\n");
+    PRINT_LATEX("\\maketitle\n");
+}
+
+void DiffDumpLatexEnd(void)
+{
     PRINT_LATEX("\\end{document}");
+    fflush(file_latex);
 }
 
 #undef PRINT_LATEX
