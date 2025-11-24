@@ -33,13 +33,11 @@ void DiffDumpNode(DiffNode_t* node, FILE* file_dump)
     {
         DiffDumpNode(node->left, file_dump);
         PRINT_IMAGE("\tnode%p -> node%p [color = \"blue\"]\n ", node, node->left);
-        // index /= 10;
     }
     
     if (node->right != NULL)
     {
         DiffDumpNode(node->right, file_dump);
-        // index = (index - 1) / 10;
         PRINT_IMAGE("\tnode%p -> node%p [color = \"red\"]\n", node, node->right);
     }
     
@@ -84,6 +82,14 @@ void DiffDump(DiffNode_t* node, const char* text)
 
 void DiffDumpNodeLatex(DiffNode_t* node)
 {
+    if (node->type == OP)
+    {
+        if (node->value.oper > DEG)
+        {
+            PRINT_LATEX("%s (", arr_operators[node->value.oper].name);
+        }
+    }
+    
     if (node->value.oper == DIV)
         PRINT_LATEX("\\frac");
     
@@ -93,7 +99,6 @@ void DiffDumpNodeLatex(DiffNode_t* node)
         {
             if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV) || (node->parent->value.oper == DEG)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
             {
-
                 PRINT_LATEX("(");
             }
         }
@@ -121,12 +126,21 @@ void DiffDumpNodeLatex(DiffNode_t* node)
         break;
 
     case OP:
-        if (node->value.oper == DIV)
+        switch (node->value.oper)
+        {
+        case DIV:
             break;
 
-        PRINT_LATEX(" %s", arr_operators[node->value.oper].name);
+        case ADD: case SUB: case MUL: case DEG:
+            PRINT_LATEX(" %s", arr_operators[node->value.oper].name);
+            break;
+
+        default:
+            PRINT_LATEX(")");
+            return;
+        }
+    
         break;
-        
     default:
         break;
     }
@@ -152,12 +166,10 @@ void DiffDumpNodeLatex(DiffNode_t* node)
             }
 
         }
-        
+
     }
 
 }
-
-
 
 void DiffDumpLatex(DiffNode_t* node, const char* name)
 {
