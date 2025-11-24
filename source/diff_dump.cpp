@@ -7,22 +7,22 @@ static int index_png = 0;
 
 void DiffDumpNode(DiffNode_t* node, FILE* file_dump)
 {       
-    #define PRINT_NODE_IMAGE(print_type, ...) PRINT_IMAGE("\tnode%p[label = \"{TYPE: %s |VAL: " print_type " | {%p | %p}}\", shape = Mrecord, style = \"filled\", fillcolor = \"#C0FFC0\"]\n", node, arr_types[node->type] , __VA_ARGS__, node->left, node->right);
+    #define PRINT_NODE_IMAGE(print_type, color, ...) PRINT_IMAGE("\tnode%p[label = \"{TYPE: %s |VAL: " print_type " | {%p | %p}}\", shape = Mrecord, style = \"filled\", fillcolor = " color "]\n", node, arr_types[node->type] , __VA_ARGS__, node->left, node->right);
 
     // добавить разные формы и цвета для разных типов ячеек 
 
     switch (node->type)
     {
         case OP:
-            PRINT_NODE_IMAGE("%s", arr_operators[node->value.oper].command_name);
+            PRINT_NODE_IMAGE("%s", "\"#5f5fffff\"", arr_operators[node->value.oper].command_name);
             break;
             
         case NUM:
-            PRINT_NODE_IMAGE("%lf", node->value.num);
+            PRINT_NODE_IMAGE("%lf", "\"#0CFF0C\"", node->value.num);
             break;
 
         case VAR:
-            PRINT_NODE_IMAGE("%lf (\'%s\')", arr_variable[node->value.index_var].value, arr_variable[node->value.index_var].name_var);
+            PRINT_NODE_IMAGE("%lf (\'%s\')", "\"#FF0C0C\"", arr_variable[node->value.index_var].value, arr_variable[node->value.index_var].name_var);
             break;
 
         default:
@@ -84,25 +84,36 @@ void DiffDump(DiffNode_t* node, const char* text)
 
 void DiffDumpNodeLatex(DiffNode_t* node)
 {
+    if (node->value.oper == DIV)
+        PRINT_LATEX("\\frac");
     
     if (node->parent != NULL)
     {
         if (node->parent->type == OP && node->type == OP)
         {
-            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
+            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV) || (node->parent->value.oper == DEG)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
             {
+
                 PRINT_LATEX("(");
             }
         }
     }
     
     if (node->left != NULL)
-        DiffDumpNodeLatex(node->left);
+        {
+            if ((node->value.oper == DIV) || (node->value.oper == DEG))
+                PRINT_LATEX("{");
+
+            DiffDumpNodeLatex(node->left);
+
+            if ((node->value.oper == DIV) || (node->value.oper == DEG))
+                PRINT_LATEX("}");
+        }
         
     switch (node->type)
     {
     case NUM:
-        PRINT_LATEX(" %lf", node->value.num);
+        PRINT_LATEX(" %lg", node->value.num);
         break;
     
     case VAR:
@@ -110,6 +121,9 @@ void DiffDumpNodeLatex(DiffNode_t* node)
         break;
 
     case OP:
+        if (node->value.oper == DIV)
+            break;
+
         PRINT_LATEX(" %s", arr_operators[node->value.oper].name);
         break;
         
@@ -118,18 +132,29 @@ void DiffDumpNodeLatex(DiffNode_t* node)
     }
 
     if (node->right != NULL)
-        DiffDumpNodeLatex(node->right);
+        {
+            if ((node->value.oper == DIV) || (node->value.oper == DEG))
+                PRINT_LATEX("{");
+
+            DiffDumpNodeLatex(node->right);
+
+            if ((node->value.oper == DIV) || (node->value.oper == DEG))
+                PRINT_LATEX("}");
+        }
 
     if (node->parent != NULL)
     {
         if (node->parent->type == OP && node->type == OP)
         {
-            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
-            {
+            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV)  || (node->parent->value.oper == DEG)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
+            {   
                 PRINT_LATEX(")");
             }
+
         }
+        
     }
+
 }
 
 

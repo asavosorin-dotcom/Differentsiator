@@ -34,7 +34,7 @@ DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent)
 }
 
 void DiffDtor(DiffNode_t* node)
-{
+{    
     if (node->left != NULL)
         DiffDtor(node->left);
 
@@ -273,6 +273,18 @@ double DiffSolveExpresion(DiffNode_t* root)
             case LN:
                 return log(num1);            
 
+            case TAN:
+                return tan(num1);
+
+            case ASIN:
+                return asin(num1);
+
+            case ACOS:
+                return acos(num1);
+
+            case ATAN:
+                return atan(num1);
+
             default:
                 break;
             }
@@ -309,7 +321,6 @@ DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* righ
 #define diffLeft   DifferentExpression(node->left , d_var)
 #define diffRight  DifferentExpression(node->right, d_var)
 
-#define diff(node) DifferentExpression(node, d_var)
 #define DIFF_POW   diff_pow(node, d_var)
 
 #define NUM_(num)                   DiffNewNodeNUM(num)
@@ -320,7 +331,9 @@ DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* righ
 #define COS_(node_left)             DiffNewNodeOP(COS, node_left, NULL)
 #define SIN_(node_left)             DiffNewNodeOP(SIN, node_left, NULL)
 #define DEG_(node_left, node_right) DiffNewNodeOP(DEG, node_left, node_right)
-#define LN_(node_left)             DiffNewNodeOP(LN,  node_left, NULL)
+#define LN_(node_left)              DiffNewNodeOP(LN,  node_left, NULL)
+#define SQRT_(node_left)            DiffNewNodeOP(DEG, node_left, NUM_(0.5))
+#define SQUAR_(node_left)            DiffNewNodeOP(DEG, node_left, NUM_(2))
 
 DiffNode_t* DiffCopyNode(DiffNode_t* node)
 {
@@ -376,7 +389,19 @@ DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
                     return MUL_(DIV_(NUM_(1), copyLeft), diffLeft);
 
                 case DEG:
-                        return DIFF_POW;
+                    return DIFF_POW;
+
+                case TAN:
+                    return MUL_(DIV_(NUM_(1), MUL_(COS_(copyLeft), COS_(copyLeft))), diffLeft);
+
+                case ASIN:
+                    return MUL_(DIV_(NUM_(1), SQRT_(SUB_(NUM_(1), SQUAR_(copyLeft)))), diffLeft);
+
+                case ACOS:
+                    return MUL_(MUL_(NUM_(-1), DIV_(NUM_(1), SQRT_(SUB_(NUM_(1), SQUAR_(copyLeft))))), diffLeft);
+             
+                case ATAN:
+                    return MUL_(DIV_(NUM_(1), ADD_(NUM_(1), SQUAR_(copyLeft))), diffLeft);
             }
             default:
                 return node;
@@ -396,8 +421,7 @@ DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var)
         return MUL_(MUL_(LN_(copyLeft), DEG_(copyLeft, copyRight)), diffRight);
     }
 
-    return MUL_(DEG_(copyLeft, copyRight), diff(MUL_(LN_(copyLeft), copyRight)));
-    return MUL_(DEG_(copyLeft, copyRight), ADD_(MUL_(diff(LN_(copyLeft)), copyRight ), MUL_(LN_(copyLeft), diffRight)));
+    return MUL_(DEG_(copyLeft, copyRight), ADD_(MUL_(MUL_(DIV_(NUM_(1), copyLeft), diffRight), copyRight), MUL_(LN_(copyLeft), diffRight)));
 }
 
 char* Read_title(int* pos, char* buffer) // можно считывать double здесь
@@ -409,6 +433,5 @@ char* Read_title(int* pos, char* buffer) // можно считывать double
     *(buffer + *pos + len - 1) = '\0';            // меняет вторую кавычку на 0
 
     (*pos) += len;
-    printf(GREEN "[%s]\n" RESET, buffer + *pos);
     return buffer + *pos - len + 1;
 }

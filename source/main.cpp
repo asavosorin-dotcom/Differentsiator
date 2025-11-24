@@ -74,8 +74,9 @@ int main(int argc, char* argv[])
     DiffDumpLatexEnd();
 
     DiffDump(root, "First dump");
-    DiffDtor(root);
     DiffDtor(dif_root);
+    printf("-------------------------------------------------------\n");
+    DiffDtor(root);
 
     free(code_tree - 1);
 

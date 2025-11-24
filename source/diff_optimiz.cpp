@@ -92,7 +92,9 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
 
             return node;
         
-        case ADD: case SUB:
+        case ADD: 
+        [[fallthrough]]
+        case SUB:
             if (nodeisnum(node->left, 0))
             {
                 cpy_right
