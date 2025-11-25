@@ -43,20 +43,20 @@ int main(int argc, char* argv[])
     double x = DiffSolveExpresion(root);
     printf("answer1 = %lf\n", x);
 
-    DiffNode_t* dif_root = DifferentExpression(root, "x");
+    DiffNode_t* dif_root = DiffExpressionN(root, "x", 2);
     double answer2 = DiffSolveExpresion(dif_root);
 
     printf("answer2 = %lf\n", answer2);
     DiffDump(root, "dif_tree");
     DiffDumpLatex(root, "first expression");
 
-    DiffOptimiz(dif_root);
+    DiffDump(dif_root, "before opt 2");
+    dif_root = DiffOptimiz(dif_root);
     DiffDumpLatex(dif_root, "first dif expression");
     DiffDump(dif_root, "123r4");
 
-    DiffOptimiz(root);
+    // DiffOptimiz(root);
     DiffDump(root, "after opt 2");
-
 
     // Value_t root_val = {};
     // root_val.oper = MUL;

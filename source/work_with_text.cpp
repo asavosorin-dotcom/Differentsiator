@@ -135,7 +135,7 @@ size_t CountHash(const char* str)
 
     while (*str != '\0')
     {
-        hash = hash * 31 + *str;
+        hash = hash * 31 + (size_t) *str;
         str++;
     }
 

@@ -32,6 +32,9 @@ DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* righ
 
 DiffNode_t* DiffCopyNode(DiffNode_t* node);
 DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var);
+DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n);
+
+DiffNode_t* DiffNewNodeNUM(double num);
 
 #define PRINT_ERR(...) printf(RED "%s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n" RESET);
 

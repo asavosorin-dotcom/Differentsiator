@@ -1,24 +1,42 @@
 #include "diff_optimiz.h"
 
+static bool flag_change = 0;
 int nodeisnum(DiffNode_t* node, double num);
 void nodenull(DiffNode_t* node);
 
-static bool flag_change = 0;
+DiffNode_t* cpy_left(DiffNode_t* node)
+{
+    DiffNode_t* node_ret = node->left;
+    node->left->parent = node->parent;
+    printf("free node[%p]\nfree node[%p]\n", node, node->right);
+    free(node->right);             
+    free(node);              
+    flag_change = 1;      
+    
+    return node_ret;
+}
 
-#define cpy_right      DiffNode_t* node_free = node; \
-                       free(node->left);             \
-                       node = node->right;           \
-                       free(node_free);              \
-                       flag_change = 1;              \
+DiffNode_t* cpy_right(DiffNode_t* node)
+{
+    DiffNode_t* node_ret = node->right;
+    node->right->parent = node->parent;
+    printf("free node[%p]\nfree node[%p]\n", node->left, node);
+    free(node->left);             
+    free(node);              
+    flag_change = 1;
+    
+    return node_ret;
+}
 
-#define cpy_left       DiffNode_t* node_free = node; \
-                       free(node->right);            \
-                       node = node->left;            \
-                       free(node_free);              \
-                       flag_change = 1;              \
 
 DiffNode_t* DiffOptimizConst(DiffNode_t* node)
 {
+    // printf(":%s:%d node = [%p]\n", __FILE__, __LINE__, node);
+
+    // DiffDump(node, "before");
+
+    fflush(stdout);
+
     if (node->left != NULL)
         node->left = DiffOptimizConst(node->left);
     
@@ -30,18 +48,31 @@ DiffNode_t* DiffOptimizConst(DiffNode_t* node)
 
     if (node->left->type == NUM && node->right->type == NUM)
     {
+        flag_change = 1;
         double num = DiffSolveExpresion(node);
+
+        DiffDump(node, "node opt");
 
         node->type = NUM;
         node->value = {};
         node->value.num = num;
 
+        // printf(BOLD_RED "SADLVBHLV\n" RESET);
+        // fflush(stdout);
+        printf("free node[%p]\nfree node[%p]\n", node->left, node->right);
         free(node->left);
         free(node->right);
 
         node->left = NULL;
         node->right = NULL;
+        
+        // printf(":%s:%d node->left = [%p]\n", __FILE__, __LINE__, node->left);
+        // printf(":%s:%d node->right = [%p]\n", __FILE__, __LINE__, node->right);
+
+        DiffDump(node->parent, "node opt");
     }
+
+    // DiffDump(node, "opt");
 
     return node;
 }
@@ -65,16 +96,17 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
             if (nodeisnum(node->left, 0) || nodeisnum(node->right, 0))
             {
                 nodenull(node);
+                // DiffDump(node->parent, "node null");
             }
             
             else if (nodeisnum(node->left, 1))
             {
-                cpy_right
+                node = cpy_right(node);
             }
 
             else if (nodeisnum(node->right, 1))
             {
-                cpy_left
+                node = cpy_left(node);
             }
 
             return node;
@@ -85,25 +117,33 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
                 nodenull(node);
             }
 
-            if (nodeisnum(node->right, 1))
+            else if (nodeisnum(node->right, 1))
             {
-                cpy_left
+                node = cpy_left(node);
             }
 
             return node;
         
         case ADD: 
-        [[fallthrough]]
-        case SUB:
             if (nodeisnum(node->left, 0))
             {
-                cpy_right
+                node = cpy_right(node);
+                return node;
             }
+
+        case SUB:
+            // DiffDump(node, "SUBBBB");
+            // printf("%p\n", node->left);
+            // fflush(stdout);
+
 
             if (nodeisnum(node->right, 0))
             {                
-                cpy_left 
+                printf("node[%p] before\n", node);
+                node = cpy_left(node);
+                printf("node[%p] after\n", node);
             }
+
             return node;
 
         default:
@@ -113,25 +153,29 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
 }
 
 
-void DiffOptimiz(DiffNode_t* root)
+DiffNode_t* DiffOptimiz(DiffNode_t* root)
 {
     while (1)
     {
         flag_change = 0;
-        DiffOptimizConst(root);
-        DiffOptimizNeytralElem(root);
+        root = DiffOptimizConst(root);
+        DiffDump(root, "after const");
+        root = DiffOptimizNeytralElem(root);
+        DiffDump(root, "after neytral");
 
         if (!flag_change)
-            break;
+            return root;
     }
 }
 
 int nodeisnum(DiffNode_t* node, double num)
 {
+    // printf("%p\n", node);
+    
     if (node->type != NUM)
         return 0;
 
-    if (node->value.num != 0)
+    if (node->value.num != num)
         return 0;
 
     return 1;
@@ -143,8 +187,10 @@ void nodenull(DiffNode_t* node)
     node->value = {};
     node->value.num = 0;
 
-    free(node->left);
-    free(node->right);
+    printf("free node[%p]\nfree node[%p]\n", node->left, node->right);
+
+    DiffDtor(node->left);
+    DiffDtor(node->right);
 
     node->left = NULL;
     node->right = NULL;

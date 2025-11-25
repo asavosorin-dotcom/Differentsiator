@@ -35,12 +35,16 @@ DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent)
 
 void DiffDtor(DiffNode_t* node)
 {    
+    static int counter = 0;
+    
     if (node->left != NULL)
         DiffDtor(node->left);
 
     if (node->right != NULL)
         DiffDtor(node->right);
     
+    counter++;
+    printf("[%d]\n", counter);
     free(node);
 }
 
@@ -85,7 +89,7 @@ DiffNode_t* DiffReadNode(int* pos, char* buffer)
     else if (buffer[*pos] == 'n' && buffer[*pos + 1] == 'i' && buffer[*pos + 2] == 'l')
     {
         *pos += skip_space(buffer + *pos);
-        *pos += strlen("nil");
+        *pos += (int) strlen("nil");
         // printf("if nil [%s]\n", buffer + *pos);
         return NULL;
     }
@@ -107,7 +111,7 @@ DiffNode_t* DiffNodeMake(const char* value_node)
 
     double num = 0;
 
-    if ((num = strtod(value_node, NULL)) != 0 || (strcmp(value_node, "0") == 0))
+    if ((int) (num = strtod(value_node, NULL)) != 0 || (strcmp(value_node, "0") == 0))
     {
         type = NUM;
         printf("%lf\n", num);
@@ -215,81 +219,76 @@ int isoperator(const char* string)
     return -1;
 }
 
-int comporator_var(const void* var1, const void* var2)
-{
-    if (((const Variable_t*) var1)->hash < ((const Variable_t*) var2)->hash)
-        return -1;
-
-    else if (((const Variable_t*) var1)->hash == ((const Variable_t*) var1)->hash)
-        return 0;
-
-    else
-        return 1;
-}
-
-double DiffSolveExpresion(DiffNode_t* root)
-{
-    if (root == NULL)
+    double DiffSolveExpresion(DiffNode_t* root)
     {
-        // PRINT_ERR("null pointer node")
-        return 0;
-    }
-    
-    switch (root->type)
-    {
-        case NUM:
-            return root->value.num;
-
-        case VAR:
-            return arr_variable[root->value.index_var].value;
-
-        case OP:
-            double num1 = DiffSolveExpresion(root->left);
-            double num2 = DiffSolveExpresion(root->right);
-
-            switch (root->value.oper)
-            {
-            case ADD:
-                return num1 + num2;
-            
-            case SUB:
-                return num1 - num2;
-
-            case MUL:
-                return num1 * num2;
-
-            case DIV:
-                return num1 / num2; // 0
-
-            case DEG:
-                return pow(num1, num2);
-
-            case SIN:
-                return sin(num1);
+        if (root == NULL)
+        {
+            // PRINT_ERR("null pointer node")
+            return 0;
+        }
         
-            case COS:
-                return cos(num1);
+        switch (root->type)
+        {
+            case NUM:
+                return root->value.num;
+
+            case VAR:
+                return arr_variable[root->value.index_var].value;
+
+            case OP:
+                {
+                double num1 = DiffSolveExpresion(root->left);
+                double num2 = DiffSolveExpresion(root->right);
+
+                switch (root->value.oper)
+                {
+                case ADD:
+                    return num1 + num2;
                 
-            case LN:
-                return log(num1);            
+                case SUB:
+                    return num1 - num2;
 
-            case TAN:
-                return tan(num1);
+                case MUL:
+                    return num1 * num2;
 
-            case ASIN:
-                return asin(num1);
+                case DIV:
+                    return num1 / num2; // 0
 
-            case ACOS:
-                return acos(num1);
+                case DEG:
+                    return pow(num1, num2);
 
-            case ATAN:
-                return atan(num1);
+                case SIN:
+                    return sin(num1);
+            
+                case COS:
+                    return cos(num1);
+                    
+                case LN:
+                    return log(num1);            
 
-            default:
+                case TAN:
+                    return tan(num1);
+
+                case ASIN:
+                    return asin(num1);
+
+                case ACOS:
+                    return acos(num1);
+
+                case ATAN:
+                    return atan(num1);
+
+                default:
+                    return 0;
+                }
                 break;
             }
+
+            default:
+                printf(BOLD_RED "Type doesn't exist\n" RESET);
+                return 0;
+        }
     }
-}
 
 DiffNode_t* DiffNewNodeNUM(double num)
 {
@@ -333,7 +332,7 @@ DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* righ
 #define DEG_(node_left, node_right) DiffNewNodeOP(DEG, node_left, node_right)
 #define LN_(node_left)              DiffNewNodeOP(LN,  node_left, NULL)
 #define SQRT_(node_left)            DiffNewNodeOP(DEG, node_left, NUM_(0.5))
-#define SQUAR_(node_left)            DiffNewNodeOP(DEG, node_left, NUM_(2))
+#define SQUAR_(node_left)           DiffNewNodeOP(DEG, node_left, NUM_(2))
 
 DiffNode_t* DiffCopyNode(DiffNode_t* node)
 {
@@ -341,17 +340,21 @@ DiffNode_t* DiffCopyNode(DiffNode_t* node)
 
     if (node->left != NULL)
         new_node->left = DiffCopyNode(node->left);
-    
+    else
+        new_node->left = NULL;
+
     if (node->right != NULL)
         new_node->right = DiffCopyNode(node->right);
+    else
+        new_node->right = NULL;
 
     return new_node;
 }
 
 DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
 {
-    DiffDumpLatex(node, "diff");
-    Value_t val = {};
+    DiffDumpLatex(node, "diff dump");
+    
     switch (node->type)
     {
         case NUM:
@@ -377,7 +380,7 @@ DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
                     return ADD_(MUL_(diffLeft, copyRight), MUL_(copyLeft, diffRight));
 
                 case DIV:
-                    return DIV_(SUB_(MUL_(diffLeft, copyRight), MUL_(copyRight, diffLeft)), MUL_(copyRight, copyRight));
+                    return DIV_(SUB_(MUL_(diffLeft, copyRight), MUL_(copyLeft, diffRight)), MUL_(copyRight, copyRight));
                 
                 case SIN:
                     return MUL_(COS_(copyLeft), diffLeft);
@@ -402,7 +405,11 @@ DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
              
                 case ATAN:
                     return MUL_(DIV_(NUM_(1), ADD_(NUM_(1), SQUAR_(copyLeft))), diffLeft);
+
+                default:
+                    break;
             }
+
             default:
                 return node;
     }
@@ -430,8 +437,30 @@ char* Read_title(int* pos, char* buffer) // можно считывать double
     *pos += skip_space(buffer + *pos);
 
     sscanf(buffer + *pos, " \"%*[^\"]\"%n", &len);
-    *(buffer + *pos + len - 1) = '\0';            // меняет вторую кавычку на 0
+    *(buffer + *pos + len - 1) = '\0';            
 
     (*pos) += len;
     return buffer + *pos - len + 1;
+}
+
+DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
+{
+    DiffNode_t* node0 = root;
+    DiffNode_t* node1 = NULL;
+
+    for (int i = 0; i < n; i++)
+    {
+            node1 = DifferentExpression(node0, d_var);
+        
+        if (node0 != root)
+        {
+            printf("node[%p]\n", node0);
+            fflush(stdout);
+            DiffDtor(node0);
+        }
+
+        node0 = node1;
+    }
+
+    return node1;
 }

@@ -41,7 +41,7 @@ void DiffDumpNode(DiffNode_t* node, FILE* file_dump)
         PRINT_IMAGE("\tnode%p -> node%p [color = \"red\"]\n", node, node->right);
     }
     
-    #undef PRINT_NODE_IMAGE(...)
+    #undef PRINT_NODE_IMAGE
 }
 
 void DiffDumpImage(DiffNode_t* node)
@@ -97,7 +97,7 @@ void DiffDumpNodeLatex(DiffNode_t* node)
     {
         if (node->parent->type == OP && node->type == OP)
         {
-            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV) || (node->parent->value.oper == DEG)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
+            if ((((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV) || (node->parent->value.oper == DEG)) && ((node->value.oper == ADD) || (node->value.oper == SUB))) || ((node->parent->value.oper == SIN) || (node->parent->value.oper == COS)))
             {
                 PRINT_LATEX("(");
             }
@@ -160,7 +160,7 @@ void DiffDumpNodeLatex(DiffNode_t* node)
     {
         if (node->parent->type == OP && node->type == OP)
         {
-            if (((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV)  || (node->parent->value.oper == DEG)) && (node->value.oper == ADD || node->value.oper == SUB) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
+            if ((((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV)  || (node->parent->value.oper == DEG)) && (node->value.oper == ADD || node->value.oper == SUB)) || (node->parent->value.oper == SIN || node->parent->value.oper == COS))
             {   
                 PRINT_LATEX(")");
             }
@@ -176,6 +176,7 @@ void DiffDumpLatex(DiffNode_t* node, const char* name)
     PRINT_LATEX("\\section{%s}\n", name);
     PRINT_LATEX("\\Large\n");
     PRINT_LATEX("$");
+    PRINT_LATEX("\\frac{d}{dx}(");
     DiffDumpNodeLatex(node);
     PRINT_LATEX("$\n");
 }
