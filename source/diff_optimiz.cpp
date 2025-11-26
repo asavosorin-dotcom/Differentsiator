@@ -159,9 +159,7 @@ DiffNode_t* DiffOptimiz(DiffNode_t* root)
     {
         flag_change = 0;
         root = DiffOptimizConst(root);
-        DiffDump(root, "after const");
         root = DiffOptimizNeytralElem(root);
-        DiffDump(root, "after neytral");
 
         if (!flag_change)
             return root;

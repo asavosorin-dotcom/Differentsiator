@@ -17,6 +17,9 @@ void DiffDump(DiffNode_t* node, const char* text);
 void DiffDumpLatexBegin(void);
 void DiffDumpLatexEnd(void);
 
+void DiffDumpLatexAnswer(DiffNode_t* node, double answer);
+void DiffDumpLatexDDX(DiffNode_t* node, DiffNode_t* diff_node, const char* d_var);
+
 void DiffDumpNodeLatex(DiffNode_t* node);
 void DiffDumpLatex(DiffNode_t* node, const char* name);
 #endif

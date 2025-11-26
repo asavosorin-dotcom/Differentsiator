@@ -39,43 +39,36 @@ int main(int argc, char* argv[])
     }
     
     GetVariableValue();
-    
-    DiffDumpLatex(root, "first expression");
+
+    DiffDumpLatex(root, "First expression");
 
     double x = DiffSolveExpresion(root);
     printf("answer1 = %lf\n", x);
 
     DiffNode_t* dif_root = DiffExpressionN(root, "x", 2);
     double answer2 = DiffSolveExpresion(dif_root);
+    DiffDumpLatexAnswer(dif_root, answer2);
 
     printf("answer2 = %lf\n", answer2);
     DiffDump(root, "dif_tree");
+
+    DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
+
+    DiffDumpLatex(teylor_node, "Teylor");
+    DiffDump(teylor_node, "Teylor");
+    DiffDumpLatexAnswer(teylor_node, DiffSolveExpresion(teylor_node));
 
     DiffDump(dif_root, "before opt 2");
     dif_root = DiffOptimiz(dif_root);
     DiffDumpLatex(dif_root, "first dif expression");
     DiffDump(dif_root, "123r4");
 
-    // DiffOptimiz(root);
-    DiffDump(root, "after opt 2");
-
-    // Value_t root_val = {};
-    // root_val.oper = MUL;
-    // DiffNode_t* root = DiffNodeCtor(OP, &root_val);
-
-    // Value_t val1 = {};
-    // val1.num = 7;
-    // root->left = DiffNodeCtor(NUM, &val1);
-
-    // Value_t val2 = {};
-    // val2.num = 13;
-    // root->right = DiffNodeCtor(NUM, &val2);
-
     DiffPrintNode(dif_root, file_diff);
     DiffDumpLatexEnd();
 
     DiffDump(root, "First dump");
     DiffDtor(dif_root);
+    DiffDtor(teylor_node);
     printf("-------------------------------------------------------\n");
     DiffDtor(root);
 

@@ -8,8 +8,10 @@
 #include <math.h>
 
 #include "diff_struct.h"
-#include "work_with_text.h"
 #include "diff_dump.h"
+#include "diff_optimiz.h"
+
+#include "work_with_text.h"
 #include "colors.h"
 
 DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent);
@@ -29,12 +31,15 @@ void GetVariableValue(void);
 
 DiffNode_t* DiffNewNode(Type_t type, Value_t value, DiffNode_t* left, DiffNode_t* right);
 DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* right);
+DiffNode_t* DiffNewNodeVar(const char* d_var);
+DiffNode_t* DiffNewNodeNUM(double num);
 
 DiffNode_t* DiffCopyNode(DiffNode_t* node);
 DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var);
 DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n);
 
-DiffNode_t* DiffNewNodeNUM(double num);
+DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var);
+double TeylorCoefCount(DiffNode_t* node, int k, const char* d_var);
 
 #define PRINT_ERR(...) printf(RED "%s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n" RESET);
 

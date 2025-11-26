@@ -316,6 +316,25 @@ DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* righ
     return node;
 }
 
+DiffNode_t* DiffNewNodeVar(const char* d_var)
+{
+    size_t hash_var = CountHash(d_var);
+    
+    for (int i = 0; i < VAR_CAPASITY; i++)
+    {
+        if (hash_var == arr_variable[i].hash)
+        {
+            Value_t val = {};
+            val.index_var = i;
+            DiffNode_t* node = DiffNodeCtor(VAR, &val, NULL);
+            return node;
+        }
+    }
+
+    PRINT_ERR("doesn't exist var %s", d_var);
+    return NULL;
+}
+
 #define copyLeft   DiffCopyNode(node->left)
 #define copyRight  DiffCopyNode(node->right)
 #define diffLeft   DifferentExpression(node->left , d_var)
@@ -324,6 +343,7 @@ DiffNode_t* DiffNewNodeOP(Operator_val_t val, DiffNode_t* left, DiffNode_t* righ
 #define DIFF_POW   diff_pow(node, d_var)
 
 #define NUM_(num)                   DiffNewNodeNUM(num)
+#define VAR_(d_var)                 DiffNewNodeVar(d_var)
 #define ADD_(node_left, node_right) DiffNewNodeOP(ADD, node_left, node_right)
 #define SUB_(node_left, node_right) DiffNewNodeOP(SUB, node_left, node_right)
 #define MUL_(node_left, node_right) DiffNewNodeOP(MUL, node_left, node_right)
@@ -358,7 +378,7 @@ DiffNode_t* DiffCopyNode(DiffNode_t* node)
 DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
 {
     DiffNode_t* ret_node = diff_expression(node, d_var);
-    DiffDumpLatexDDX(node, ret_node);
+    DiffDumpLatexDDX(node, ret_node, d_var);
     return ret_node;
 }
 
@@ -461,7 +481,7 @@ DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
             DiffDumpLatex(node0, "Differentiation Expression");
             node1 = DifferentExpression(node0, d_var);
             node1 = DiffOptimiz(node1);
-            DiffDumpLatexDDX(node0, node1);
+            DiffDumpLatexDDX(node0, node1, d_var);
 
         if (node0 != root)
         {
@@ -475,3 +495,43 @@ DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
 
     return node1;
 }
+
+DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var)
+{
+    printf(BOLD_BLUE "Enter a in Teylor: \n" RESET);
+    double a = 0;
+    scanf("%lg", &a);
+    
+    DiffNode_t* teylor_node = NUM_(0);
+    
+    for (int i = 0; i <= n; i++)
+    {
+        teylor_node = ADD_(teylor_node, MUL_(NUM_(TeylorCoefCount(node, i, d_var)), DEG_(SUB_(VAR_(d_var), NUM_(a)), NUM_(i))));
+    }
+
+    teylor_node = DiffOptimiz(teylor_node);
+    return teylor_node;
+}
+
+double TeylorCoefCount(DiffNode_t* node, int k, const char* d_var)
+{
+    DiffNode_t* diff_node = DiffExpressionN(node, d_var, k);
+    double answer = DiffSolveExpresion(diff_node);
+
+    if (diff_node != NULL) DiffDtor(diff_node);
+
+    return answer / tgamma(k+1);
+}
+
+#undef NUM_(num)                   DiffNewNodeNUM(num)
+#undef VAR_(d_var)                 DiffNewNodeVar(d_var)
+#undef ADD_(node_left, node_right) DiffNewNodeOP(ADD, node_left, node_right)
+#undef SUB_(node_left, node_right) DiffNewNodeOP(SUB, node_left, node_right)
+#undef MUL_(node_left, node_right) DiffNewNodeOP(MUL, node_left, node_right)
+#undef DIV_(node_left, node_right) DiffNewNodeOP(DIV, node_left, node_right)
+#undef COS_(node_left)             DiffNewNodeOP(COS, node_left, NULL)
+#undef SIN_(node_left)             DiffNewNodeOP(SIN, node_left, NULL)
+#undef DEG_(node_left, node_right) DiffNewNodeOP(DEG, node_left, node_right)
+#undef LN_(node_left)              DiffNewNodeOP(LN,  node_left, NULL)
+#undef SQRT_(node_left)            DiffNewNodeOP(DEG, node_left, NUM_(0.5))
+#undef SQUAR_(node_left)           DiffNewNodeOP(DEG, node_left, NUM_(2))

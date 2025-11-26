@@ -171,12 +171,35 @@ void DiffDumpNodeLatex(DiffNode_t* node)
 
 }
 
-void DiffDumpLatexDDX(DiffNode_t* node, DiffNode_t* diff_node)
+void DiffDumpLatexAnswer(DiffNode_t* node, double answer)
+{
+    PRINT_LATEX("\\subsection{}\n");
+    PRINT_LATEX("\\Large\n");
+
+    PRINT_LATEX("При ");
+    
+    for (int i = 0; i < VAR_CAPASITY; i++)
+    {
+        if (arr_variable[i].flag)
+        {
+            PRINT_LATEX("%s = %lg", arr_variable[i].name_var, arr_variable[i].value);
+        }
+    }
+    PRINT_LATEX("\n");
+    PRINT_LATEX("\\newline");
+    
+    PRINT_LATEX("$");
+    DiffDumpNodeLatex(node);
+    PRINT_LATEX("$");
+    PRINT_LATEX(" = %lg\n", answer);
+}
+
+void DiffDumpLatexDDX(DiffNode_t* node, DiffNode_t* diff_node, const char* d_var)
 {
     PRINT_LATEX("\\subsection{}\n");
     PRINT_LATEX("\\Large\n");
     PRINT_LATEX("$");
-    PRINT_LATEX("\\frac{d}{dx}(");
+    PRINT_LATEX("\\frac{d}{d%s}(", d_var);
     DiffDumpNodeLatex(node);
     PRINT_LATEX(") = ");
     DiffDumpNodeLatex(diff_node);
