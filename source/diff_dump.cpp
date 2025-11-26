@@ -1,6 +1,6 @@
 #include "diff_dump.h"
 
-FILE* file_htm = fopen("Logfile.htm", "w");
+FILE* file_htm   = fopen("Logfile.htm"   , "w");
 FILE* file_latex = fopen("dump_latex.tex", "w");
 
 static int index_png = 0;
@@ -171,12 +171,23 @@ void DiffDumpNodeLatex(DiffNode_t* node)
 
 }
 
-void DiffDumpLatex(DiffNode_t* node, const char* name)
+void DiffDumpLatexDDX(DiffNode_t* node, DiffNode_t* diff_node)
+{
+    PRINT_LATEX("\\subsection{}\n");
+    PRINT_LATEX("\\Large\n");
+    PRINT_LATEX("$");
+    PRINT_LATEX("\\frac{d}{dx}(");
+    DiffDumpNodeLatex(node);
+    PRINT_LATEX(") = ");
+    DiffDumpNodeLatex(diff_node);
+    PRINT_LATEX("$\n");
+}
+
+void DiffDumpLatex(DiffNode_t* node, const char* name) // дописать по возможности
 {
     PRINT_LATEX("\\section{%s}\n", name);
     PRINT_LATEX("\\Large\n");
     PRINT_LATEX("$");
-    PRINT_LATEX("\\frac{d}{dx}(");
     DiffDumpNodeLatex(node);
     PRINT_LATEX("$\n");
 }

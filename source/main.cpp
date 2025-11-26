@@ -39,6 +39,8 @@ int main(int argc, char* argv[])
     }
     
     GetVariableValue();
+    
+    DiffDumpLatex(root, "first expression");
 
     double x = DiffSolveExpresion(root);
     printf("answer1 = %lf\n", x);
@@ -48,7 +50,6 @@ int main(int argc, char* argv[])
 
     printf("answer2 = %lf\n", answer2);
     DiffDump(root, "dif_tree");
-    DiffDumpLatex(root, "first expression");
 
     DiffDump(dif_root, "before opt 2");
     dif_root = DiffOptimiz(dif_root);

@@ -1,6 +1,7 @@
 #include "diffur.h"
 
 DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var);
+DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var);
 
 DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent)
 {
@@ -351,22 +352,30 @@ DiffNode_t* DiffCopyNode(DiffNode_t* node)
     return new_node;
 }
 
+// написать функцию для пошагового дампа в дифференцировании 
+// объеденить switch case в одну функцию для дампа, чтобы перед общим ретерном поставить дамп в латех
+
 DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
 {
-    DiffDumpLatex(node, "diff dump");
-    
+    DiffNode_t* ret_node = diff_expression(node, d_var);
+    DiffDumpLatexDDX(node, ret_node);
+    return ret_node;
+}
+
+DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var)
+{
     switch (node->type)
     {
         case NUM:
-            return NUM_(0);
-
+        return NUM_(0);
+        
         case VAR:
         {
             int index_var = isvariable(d_var);
             double num = (index_var == node->value.index_var) ? 1 : 0;
             return NUM_(num);
         }
-
+        
         case OP:
             switch (node->value.oper)
             {
@@ -413,7 +422,6 @@ DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
             default:
                 return node;
     }
-
 }
 
 DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var)
@@ -450,8 +458,11 @@ DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
 
     for (int i = 0; i < n; i++)
     {
+            DiffDumpLatex(node0, "Differentiation Expression");
             node1 = DifferentExpression(node0, d_var);
-        
+            node1 = DiffOptimiz(node1);
+            DiffDumpLatexDDX(node0, node1);
+
         if (node0 != root)
         {
             printf("node[%p]\n", node0);
