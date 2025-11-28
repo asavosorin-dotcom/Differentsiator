@@ -326,6 +326,7 @@ DiffNode_t* DiffNewNodeVar(const char* d_var)
         {
             Value_t val = {};
             val.index_var = i;
+            arr_variable[i].flag = YES;
             DiffNode_t* node = DiffNodeCtor(VAR, &val, NULL);
             return node;
         }
@@ -485,8 +486,8 @@ DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
 
         if (node0 != root)
         {
-            printf("node[%p]\n", node0);
-            fflush(stdout);
+            // printf("node[%p]\n", node0);
+            // fflush(stdout);
             DiffDtor(node0);
         }
 

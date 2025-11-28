@@ -142,7 +142,7 @@ size_t CountHash(const char* str)
     return hash;
 }
 
-int skip_space(char* buffer)
+int skip_space(const char* buffer)
 {
     int pos = 0;
 

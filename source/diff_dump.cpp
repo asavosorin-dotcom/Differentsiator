@@ -90,14 +90,22 @@ void DiffDumpNodeLatex(DiffNode_t* node)
         }
     }
     
-    if (node->value.oper == DIV)
-        PRINT_LATEX("\\frac");
+    if (node->type == OP)
+    {
+        if (node->value.oper == DIV)
+            PRINT_LATEX("\\frac");
+    }
     
     if (node->parent != NULL)
     {
         if (node->parent->type == OP && node->type == OP)
         {
-            if ((((node->parent->value.oper == MUL) || (node->parent->value.oper == DIV) || (node->parent->value.oper == DEG)) && ((node->value.oper == ADD) || (node->value.oper == SUB))) || ((node->parent->value.oper == SIN) || (node->parent->value.oper == COS)))
+            if ((((node->parent->value.oper == MUL) 
+                || (node->parent->value.oper == DIV) 
+                || (node->parent->value.oper == DEG)) 
+                && ((node->value.oper == ADD) 
+                || (node->value.oper == SUB))) 
+                || ((node->parent->value.oper == SIN) || (node->parent->value.oper == COS)))
             {
                 PRINT_LATEX("(");
             }

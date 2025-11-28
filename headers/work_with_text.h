@@ -27,7 +27,7 @@ size_t SizeOfFile(const char* filename);
 size_t Maxlen(char* buffer);
 size_t CountStr(const char* buffer);
 size_t CountHash(const char* str);
-int skip_space(char* buffer);
+int skip_space(const char* buffer);
 
 void   OutPutBuf(char* buffer, FILE* fileout, size_t numOfElemNew);
 void CreateArrPoint(String* arr_pointer, char* buffer);

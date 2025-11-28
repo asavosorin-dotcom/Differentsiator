@@ -8,7 +8,7 @@ DiffNode_t* cpy_left(DiffNode_t* node)
 {
     DiffNode_t* node_ret = node->left;
     node->left->parent = node->parent;
-    printf("free node[%p]\nfree node[%p]\n", node, node->right);
+    // printf("free node[%p]\nfree node[%p]\n", node, node->right);
     free(node->right);             
     free(node);              
     flag_change = 1;      
@@ -20,7 +20,7 @@ DiffNode_t* cpy_right(DiffNode_t* node)
 {
     DiffNode_t* node_ret = node->right;
     node->right->parent = node->parent;
-    printf("free node[%p]\nfree node[%p]\n", node->left, node);
+    // printf("free node[%p]\nfree node[%p]\n", node->left, node);
     free(node->left);             
     free(node);              
     flag_change = 1;
@@ -59,7 +59,7 @@ DiffNode_t* DiffOptimizConst(DiffNode_t* node)
 
         // printf(BOLD_RED "SADLVBHLV\n" RESET);
         // fflush(stdout);
-        printf("free node[%p]\nfree node[%p]\n", node->left, node->right);
+        // printf("free node[%p]\nfree node[%p]\n", node->left, node->right);
         free(node->left);
         free(node->right);
 
@@ -69,7 +69,7 @@ DiffNode_t* DiffOptimizConst(DiffNode_t* node)
         // printf(":%s:%d node->left = [%p]\n", __FILE__, __LINE__, node->left);
         // printf(":%s:%d node->right = [%p]\n", __FILE__, __LINE__, node->right);
 
-        DiffDump(node->parent, "node opt");
+        // DiffDump(node->parent, "node opt");
     }
 
     // DiffDump(node, "opt");
@@ -139,9 +139,9 @@ DiffNode_t* DiffOptimizNeytralElem(DiffNode_t* node)
 
             if (nodeisnum(node->right, 0))
             {                
-                printf("node[%p] before\n", node);
+                // printf("node[%p] before\n", node);
                 node = cpy_left(node);
-                printf("node[%p] after\n", node);
+                // printf("node[%p] after\n", node);
             }
 
             return node;
@@ -185,7 +185,7 @@ void nodenull(DiffNode_t* node)
     node->value = {};
     node->value.num = 0;
 
-    printf("free node[%p]\nfree node[%p]\n", node->left, node->right);
+    // printf("free node[%p]\nfree node[%p]\n", node->left, node->right);
 
     DiffDtor(node->left);
     DiffDtor(node->right);
