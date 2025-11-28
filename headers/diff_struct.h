@@ -48,4 +48,6 @@ extern Variable_t  arr_variable [VAR_CAPASITY];
 extern Operator_t  arr_operators[OP_CAPASITY];
 extern const char* arr_types    [TYPE_CAPASITY];
 
+#define PRINT_ERR(...) printf(RED "%s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n" RESET);
+
 #endif

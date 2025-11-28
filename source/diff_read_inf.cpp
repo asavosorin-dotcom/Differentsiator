@@ -62,7 +62,7 @@ DiffNode_t* GetNumber(const char** s)
     if (**s != '.') 
     {
         DiffNode_t* node1  = DiffNewNodeNUM(val);
-        printf("retnode = [%p]\nval = [%lg]\ns = [%s]\n\n---------------------------------------------\n\n", node1, val, *s);
+        // printf("retnode = [%p]\nval = [%lg]\ns = [%s]\n\n---------------------------------------------\n\n", node1, val, *s);
         return node1;
     }
 
@@ -137,7 +137,6 @@ DiffNode_t* GetCommand(const char** s)
         command[i] = **s;
     }
     
-    
     size_t command_hash = CountHash(command);
     
     int index = 0;
@@ -149,8 +148,8 @@ DiffNode_t* GetCommand(const char** s)
             // PRINT_ERR("Unknown command %s\n", command);
             // return NULL;
             *s -= strlen(command);
-            (*s)--;
-            printf("s = [%s]\n", *s);
+            // (*s)--;
+            // printf("s = [%s]\n", *s);
             DiffNode_t* node_var = GetP(s); // возможно лучше написать GetVar
             return node_var;
         }
@@ -214,8 +213,6 @@ DiffNode_t* GetExpression(const char** s)
 
     *s += skip_space(*s);
 
-    DiffDump(node1, "expression");
-
     while (**s == '+' || **s == '-')
     {
         int op = **s;
@@ -232,6 +229,5 @@ DiffNode_t* GetExpression(const char** s)
             node1 = DiffNewNodeOP(SUB, node1, node2);
     }
 
-    DiffDump(node1, "expression after +");
     return node1;
 }

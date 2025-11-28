@@ -45,7 +45,7 @@ void DiffDtor(DiffNode_t* node)
         DiffDtor(node->right);
     
     counter++;
-    printf("[%d]\n", counter);
+    // printf("[%d]\n", counter);
     free(node);
 }
 
@@ -197,14 +197,15 @@ void DiffPrintNode(const DiffNode_t* node, FILE* file_Diff)
 int isvariable(const char* string)
 {
     size_t hash_string = CountHash(string);
-    
-    for (int index = 0; index < VAR_CAPASITY; index++) // бинпоиск на три элемента пока бесполезен 
-    {
-        if (hash_string == arr_variable[index].hash)
-            return index;
-    }
+    int index = 0;
 
-    return -1;
+    for (; hash_string != arr_variable[index].hash; index++) // бинпоиск на три элемента пока бесполезен 
+    {
+        if (index == VAR_CAPASITY - 1)
+            return -1;
+        }
+        
+    return index;
 }
 
 int isoperator(const char* string)
@@ -253,6 +254,11 @@ int isoperator(const char* string)
                     return num1 * num2;
 
                 case DIV:
+                    if (num2 == 0)
+                    {
+                        PRINT_ERR("Division by zero");
+                        return 0;
+                    }
                     return num1 / num2; // 0
 
                 case DEG:
@@ -361,12 +367,19 @@ DiffNode_t* DiffCopyNode(DiffNode_t* node)
     DiffNode_t* new_node = DiffNodeCtor(node->type, &(node->value), node->parent);
 
     if (node->left != NULL)
+    {
         new_node->left = DiffCopyNode(node->left);
+        new_node->left->parent = new_node;
+    }
+
     else
         new_node->left = NULL;
 
     if (node->right != NULL)
+    {
         new_node->right = DiffCopyNode(node->right);
+        new_node->right->parent = new_node;
+    }
     else
         new_node->right = NULL;
 
@@ -479,21 +492,38 @@ DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
 
     for (int i = 0; i < n; i++)
     {
+            // printf("node0 before dump = [%p]\n", node0);
+            // DiffDump(node0, "node0");
             DiffDumpLatex(node0, "Differentiation Expression");
             node1 = DifferentExpression(node0, d_var);
-            node1 = DiffOptimiz(node1);
+            node1 = DiffOptimiz(node1); 
             DiffDumpLatexDDX(node0, node1, d_var);
+            // DiffDump(node1, "node1");
+
+            printf("node1 = [%p]\n", node1);
+            DiffDumpLatex(node1, "noderet");
+        
+        printf("node0 before if dtor= [%p]\n", node0);
+        printf("node1 before if dtor= [%p]\n", node1);
 
         if (node0 != root)
         {
-            // printf("node[%p]\n", node0);
-            // fflush(stdout);
+            // fflush(stdout);  
+            // printf("node0 in if = [%p]\n", node0);
+            // DiffDump(node0, "defore dtor");
             DiffDtor(node0);
         }
 
-        node0 = node1;
-    }
+        // DiffDump(node1, "after if");
 
+        node0 = node1;
+        // printf("node0 = [%p]\n", node0);
+        // printf("node1 = [%p]\n", node1);
+    }
+    
+    printf("node1 = [%p]\n", node1);
+    
+    printf("noderet = [%p]\n", node1);
     return node1;
 }
 
@@ -507,19 +537,27 @@ DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var)
     
     for (int i = 0; i <= n; i++)
     {
-        teylor_node = ADD_(teylor_node, MUL_(NUM_(TeylorCoefCount(node, i, d_var)), DEG_(SUB_(VAR_(d_var), NUM_(a)), NUM_(i))));
+        teylor_node = ADD_(teylor_node, MUL_(NUM_(TeylorCoefCount(node, a, i, d_var)), DEG_(SUB_(VAR_(d_var), NUM_(a)), NUM_(i))));
     }
 
     teylor_node = DiffOptimiz(teylor_node);
     return teylor_node;
 }
 
-double TeylorCoefCount(DiffNode_t* node, int k, const char* d_var)
+double TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var)
 {
     DiffNode_t* diff_node = DiffExpressionN(node, d_var, k);
+
+    int var = isvariable(d_var);
+    double x = arr_variable[var].value;
+
+    arr_variable[var].value = a;
+
     double answer = DiffSolveExpresion(diff_node);
 
     if (diff_node != NULL) DiffDtor(diff_node);
+
+    arr_variable[var].value = x;
 
     return answer / tgamma(k+1);
 }

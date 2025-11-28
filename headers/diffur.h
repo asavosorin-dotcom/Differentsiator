@@ -39,8 +39,6 @@ DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var);
 DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n);
 
 DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var);
-double      TeylorCoefCount(DiffNode_t* node, int k, const char* d_var);
-
-#define PRINT_ERR(...) printf(RED "%s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n" RESET);
+double      TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var);
 
 #endif

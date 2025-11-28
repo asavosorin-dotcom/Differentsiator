@@ -6,6 +6,7 @@
 
 #include "diff_struct.h"
 #include "colors.h"
+#include "diffur.h"
 
 #define PRINT_IMAGE(...) fprintf(file_dump, __VA_ARGS__)
 #define PRINT_HTM(...)   fprintf(file_htm, __VA_ARGS__)
@@ -22,4 +23,8 @@ void DiffDumpLatexDDX(DiffNode_t* node, DiffNode_t* diff_node, const char* d_var
 
 void DiffDumpNodeLatex(DiffNode_t* node);
 void DiffDumpLatex(DiffNode_t* node, const char* name);
+
+void MakeDots(DiffNode_t* root, FILE* file_dat, const char* var);
+void MakeGraphic(DiffNode_t* root);
+
 #endif

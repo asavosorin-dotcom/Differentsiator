@@ -7,7 +7,7 @@ static int index_png = 0;
 
 void DiffDumpNode(DiffNode_t* node, FILE* file_dump)
 {       
-    #define PRINT_NODE_IMAGE(print_type, color, ...) PRINT_IMAGE("\tnode%p[label = \"{TYPE: %s |VAL: " print_type " | {%p | %p}}\", shape = Mrecord, style = \"filled\", fillcolor = " color "]\n", node, arr_types[node->type] , __VA_ARGS__, node->left, node->right);
+    #define PRINT_NODE_IMAGE(print_type, color, ...) PRINT_IMAGE("\tnode%p[label = \"{parent: %p | TYPE: %s |VAL: " print_type " | {%p | %p}}\", shape = Mrecord, style = \"filled\", fillcolor = " color "]\n", node, node->parent, arr_types[node->type] , __VA_ARGS__, node->left, node->right);
 
     // добавить разные формы и цвета для разных типов ячеек 
 
@@ -61,6 +61,8 @@ void DiffDumpImage(DiffNode_t* node)
     sprintf(command, "dot \"%s\" -T png -o pictures/graph%d.png", filename, index_png);
     // printf("command = %s\n", command);
     system(command);
+
+    fflush(stdout);
 
     index_png++;
 }
@@ -219,6 +221,7 @@ void DiffDumpLatex(DiffNode_t* node, const char* name) // дописать по 
     PRINT_LATEX("\\section{%s}\n", name);
     PRINT_LATEX("\\Large\n");
     PRINT_LATEX("$");
+    // DiffDump(node, "in latex");
     DiffDumpNodeLatex(node);
     PRINT_LATEX("$\n");
 }
@@ -237,4 +240,52 @@ void DiffDumpLatexEnd(void)
     fflush(file_latex);
 }
 
+#define PRINT_DAT(...) fprintf(file_dat, __VA_ARGS__);
+
+void MakeDots(DiffNode_t* root, FILE* file_dat, const char* var)
+{
+    int var_index = isvariable(var);
+ 
+    double x = arr_variable[var_index].value;
+
+    for (double val = 0; val < 10; val += 0.001)
+    {
+        arr_variable[var_index].value = val;
+        double y = DiffSolveExpresion(root);
+        PRINT_DAT("%lg %lg\n", val, y);
+    }
+
+    PRINT_DAT("\n");
+
+    arr_variable[var_index].value = x;
+}
+
+#define PRINT_SCRIPT(...) fprintf(script_file, __VA_ARGS__)
+
+void MakeGraphic(DiffNode_t* root)
+{
+    const char* script_name = "script.txt";
+    FILE* script_file = fopen(script_name, "w");
+
+    PRINT_SCRIPT("set terminal pdf\n");
+    PRINT_SCRIPT("set output \"graph.pdf\"\n");
+    PRINT_SCRIPT("set title \"f(x)\"\n");
+    PRINT_SCRIPT("set xlabel \"X\"\n");
+    PRINT_SCRIPT("set ylabel \"Y\"\n");
+    PRINT_SCRIPT("set grid\n");
+    PRINT_SCRIPT("set xrange [0:10]\n");
+    PRINT_SCRIPT("set yrange [-3:3]\n");
+
+    FILE* file_graph = fopen("graphic.txt", "w");
+    MakeDots(root, file_graph, "x");
+
+    PRINT_SCRIPT("plot \"graphic.txt\" with linespoints lt rgb \"red\" pt 0 ps 0.5");
+
+    char command[50] = "gnuplot script.txt";
+    
+    fclose(script_file);
+    system(command);
+}
+
+#undef PRINT_DAT
 #undef PRINT_LATEX
