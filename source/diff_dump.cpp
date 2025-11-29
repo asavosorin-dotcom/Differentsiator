@@ -141,7 +141,11 @@ void DiffDumpNodeLatex(DiffNode_t* node)
         case DIV:
             break;
 
-        case ADD: case SUB: case MUL: case DEG:
+        case ADD: 
+        [[fallthrough]];
+        case SUB: 
+        case MUL: 
+        case DEG:
             PRINT_LATEX(" %s", arr_operators[node->value.oper].name);
             break;
 
@@ -178,7 +182,6 @@ void DiffDumpNodeLatex(DiffNode_t* node)
         }
 
     }
-
 }
 
 void DiffDumpLatexAnswer(DiffNode_t* node, double answer)
@@ -255,14 +258,14 @@ void MakeDots(DiffNode_t* root, FILE* file_dat, const char* var)
         PRINT_DAT("%lg %lg\n", val, y);
     }
 
-    PRINT_DAT("\n");
+    PRINT_DAT("\n\n\n");
 
     arr_variable[var_index].value = x;
 }
 
 #define PRINT_SCRIPT(...) fprintf(script_file, __VA_ARGS__)
 
-void MakeGraphic(DiffNode_t* root)
+void MakeGraphicFunc(DiffNode_t* root)
 {
     const char* script_name = "script.txt";
     FILE* script_file = fopen(script_name, "w");
@@ -283,6 +286,42 @@ void MakeGraphic(DiffNode_t* root)
 
     char command[50] = "gnuplot script.txt";
     
+    fclose(script_file);
+    system(command);
+}
+
+void MakeGraphicFullInf(DiffNode_t* root)
+{
+    const char* script_name = "script.txt";
+    FILE* script_file = fopen(script_name, "w");
+
+    PRINT_SCRIPT("set terminal pdf\n");
+    PRINT_SCRIPT("set output \"graph_full.pdf\"\n");
+    PRINT_SCRIPT("set title \"Full inf graph\"\n");
+    PRINT_SCRIPT("set xlabel \"X\"\n");
+    PRINT_SCRIPT("set ylabel \"Y\"\n");
+    PRINT_SCRIPT("set grid\n");
+    PRINT_SCRIPT("set xrange [0:10]\n");
+    PRINT_SCRIPT("set yrange [-3:3]\n");
+
+    FILE* file_graph = fopen("graphic.txt", "w");
+    MakeDots(root, file_graph, "x");
+
+    DiffNode_t* diff_root = DifferentExpression(root, "x");
+    MakeDots(diff_root, file_graph, "x");
+
+    DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
+    MakeDots(teylor_node, file_graph, "x");
+
+    PRINT_SCRIPT("plot \"graphic.txt\" index 0 with linespoints lt rgb \"red\" pt 0 ps 0.5 title \"function\", \\ \n");
+    PRINT_SCRIPT("plot \"\" index 1 with linespoints lt rgb \"green\" pt 0 ps 0.5 title \"derivative\", \\ \n");
+    PRINT_SCRIPT("plot \"\" index 2 with linespoints lt rgb \"blue\" pt 0 ps 0.5 title \"Teylor func\", \\ \n");
+
+    char command[50] = "gnuplot script.txt";
+    
+    free(diff_root);
+    free(teylor_node);
+
     fclose(script_file);
     system(command);
 }

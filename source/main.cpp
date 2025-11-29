@@ -25,7 +25,9 @@ int main(int argc, char* argv[])
     double x = DiffSolveExpresion(root);
     printf("answer1 = %lg\n", x);
 
-    MakeGraphic(root);
+    MakeGraphicFunc(root);
+
+    MakeGraphicFullInf(root);
 
     // написать графики
 
@@ -41,11 +43,11 @@ int main(int argc, char* argv[])
     printf("answer2 = %lg\n", answer2);
     // DiffDump(root, "dif_tree");
 
-    DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
+    // DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
 
-    DiffDumpLatex(teylor_node, "Teylor");
+    // DiffDumpLatex(teylor_node, "Teylor");
     // DiffDump(teylor_node, "Teylor");
-    DiffDumpLatexAnswer(teylor_node, DiffSolveExpresion(teylor_node));
+    // DiffDumpLatexAnswer(teylor_node, DiffSolveExpresion(teylor_node));  
 
     // DiffDump(dif_root, "before opt 2");
     // dif_root = DiffOptimiz(dif_root);
@@ -56,7 +58,7 @@ int main(int argc, char* argv[])
 
     DiffDump(root, "First dump");
     DiffDtor(dif_root);
-    DiffDtor(teylor_node);
+    // DiffDtor(teylor_node);
     printf("-------------------------------------------------------\n");
     DiffDtor(root);
 }

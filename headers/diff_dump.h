@@ -25,6 +25,8 @@ void DiffDumpNodeLatex(DiffNode_t* node);
 void DiffDumpLatex(DiffNode_t* node, const char* name);
 
 void MakeDots(DiffNode_t* root, FILE* file_dat, const char* var);
-void MakeGraphic(DiffNode_t* root);
+void MakeGraphicFunc(DiffNode_t* root);
+
+void MakeGraphicFullInf(DiffNode_t* root);
 
 #endif
