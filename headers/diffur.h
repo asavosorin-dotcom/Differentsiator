@@ -19,11 +19,12 @@ void        DiffDtor    (DiffNode_t* node);
 
 DiffNode_t* DiffReadNode(int* pos, char* buffer);
 DiffNode_t* DiffNodeMake(const char* value_node);
-void DiffPrintNode(const DiffNode_t* node, FILE* file_Diff);
+void        DiffPrintNode(const DiffNode_t* node, FILE* file_Diff);
 
 double DiffSolveExpresion(DiffNode_t* root);
 
 char* Read_title(int* pos, char* buffer);
+
 int isvariable(const char* string);
 int isoperator(const char* string);
 
@@ -39,6 +40,6 @@ DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var);
 DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n);
 
 DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var);
-double      TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var);
+DiffNode_t* TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var);
 
 #endif

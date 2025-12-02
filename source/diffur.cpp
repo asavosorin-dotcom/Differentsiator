@@ -285,6 +285,15 @@ int isoperator(const char* string)
                 case ATAN:
                     return atan(num1);
 
+                case SINH:
+                    return sinh(num1);
+                    
+                case COSH:
+                    return cosh(num1);
+
+                case TANH:
+                    return tanh(num1);
+
                 default:
                     return 0;
                 }
@@ -349,18 +358,22 @@ DiffNode_t* DiffNewNodeVar(const char* d_var)
 
 #define DIFF_POW   diff_pow(node, d_var)
 
-#define NUM_(num)                   DiffNewNodeNUM(num)
-#define VAR_(d_var)                 DiffNewNodeVar(d_var)
-#define ADD_(node_left, node_right) DiffNewNodeOP(ADD, node_left, node_right)
-#define SUB_(node_left, node_right) DiffNewNodeOP(SUB, node_left, node_right)
-#define MUL_(node_left, node_right) DiffNewNodeOP(MUL, node_left, node_right)
-#define DIV_(node_left, node_right) DiffNewNodeOP(DIV, node_left, node_right)
-#define COS_(node_left)             DiffNewNodeOP(COS, node_left, NULL)
-#define SIN_(node_left)             DiffNewNodeOP(SIN, node_left, NULL)
-#define DEG_(node_left, node_right) DiffNewNodeOP(DEG, node_left, node_right)
-#define LN_(node_left)              DiffNewNodeOP(LN,  node_left, NULL)
-#define SQRT_(node_left)            DiffNewNodeOP(DEG, node_left, NUM_(0.5))
-#define SQUAR_(node_left)           DiffNewNodeOP(DEG, node_left, NUM_(2))
+#define NUM_(num)                    DiffNewNodeNUM(num)
+#define VAR_(d_var)                  DiffNewNodeVar(d_var)
+#define ADD_(node_left, node_right)  DiffNewNodeOP(ADD, node_left, node_right)
+#define SUB_(node_left, node_right)  DiffNewNodeOP(SUB, node_left, node_right)
+#define MUL_(node_left, node_right)  DiffNewNodeOP(MUL, node_left, node_right)
+#define DIV_(node_left, node_right)  DiffNewNodeOP(DIV, node_left, node_right)
+#define COS_(node_left)              DiffNewNodeOP(COS, node_left, NULL)
+#define SIN_(node_left)              DiffNewNodeOP(SIN, node_left, NULL)
+#define DEG_(node_left, node_right)  DiffNewNodeOP(DEG, node_left, node_right)
+#define LN_(node_left)               DiffNewNodeOP(LN,  node_left, NULL)
+#define SQRT_(node_left)             DiffNewNodeOP(DEG, node_left, NUM_(0.5))
+#define SQUAR_(node_left)            DiffNewNodeOP(DEG, node_left, NUM_(2))
+#define SINH_(node_left)             DiffNewNodeOP(SINH, node_left, NULL)
+#define COSH_(node_left)             DiffNewNodeOP(COSH, node_left, NULL)
+#define TANH_(node_left)             DiffNewNodeOP(TANH, node_left, NULL)
+
 
 DiffNode_t* DiffCopyNode(DiffNode_t* node)
 {
@@ -449,6 +462,15 @@ DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var)
                 case ATAN:
                     return MUL_(DIV_(NUM_(1), ADD_(NUM_(1), SQUAR_(copyLeft))), diffLeft);
 
+                case SINH: 
+                    return MUL_(COSH_(copyLeft), diffLeft);
+
+                case COSH: 
+                    return MUL_(SINH_(copyLeft), diffLeft);
+
+                case TANH: 
+                    return MUL_(DIV_(NUM_(-1), SQUAR_(copyLeft)), diffLeft);
+
                 default:
                     break;
             }
@@ -492,38 +514,22 @@ DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
 
     for (int i = 0; i < n; i++)
     {
-            // printf("node0 before dump = [%p]\n", node0);
-            // DiffDump(node0, "node0");
-            DiffDumpLatex(node0, "Differentiation Expression");
+            DiffDumpLatex(node0, "Производная");
+            PRINT_LATEX("\\newline Возьмем %d-ю производную\n", i + 1);
             node1 = DifferentExpression(node0, d_var);
             node1 = DiffOptimiz(node1); 
             DiffDumpLatexDDX(node0, node1, d_var);
             // DiffDump(node1, "node1");
 
-            printf("node1 = [%p]\n", node1);
-            DiffDumpLatex(node1, "noderet");
-        
-        printf("node0 before if dtor= [%p]\n", node0);
-        printf("node1 before if dtor= [%p]\n", node1);
-
         if (node0 != root)
         {
-            // fflush(stdout);  
-            // printf("node0 in if = [%p]\n", node0);
-            // DiffDump(node0, "defore dtor");
             DiffDtor(node0);
         }
 
-        // DiffDump(node1, "after if");
 
         node0 = node1;
-        // printf("node0 = [%p]\n", node0);
-        // printf("node1 = [%p]\n", node1);
     }
     
-    printf("node1 = [%p]\n", node1);
-    
-    printf("noderet = [%p]\n", node1);
     return node1;
 }
 
@@ -537,14 +543,14 @@ DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var)
     
     for (int i = 0; i <= n; i++)
     {
-        teylor_node = ADD_(teylor_node, MUL_(NUM_(TeylorCoefCount(node, a, i, d_var)), DEG_(SUB_(VAR_(d_var), NUM_(a)), NUM_(i))));
+        teylor_node = ADD_(teylor_node, MUL_(TeylorCoefCount(node, a, i, d_var), DEG_(SUB_(VAR_(d_var), NUM_(a)), NUM_(i))));
     }
 
-    teylor_node = DiffOptimiz(teylor_node);
+    teylor_node = DiffOptimizNeytralElem(teylor_node);
     return teylor_node;
 }
 
-double TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var)
+DiffNode_t* TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var)
 {
     DiffNode_t* diff_node = DiffExpressionN(node, d_var, k);
 
@@ -559,7 +565,7 @@ double TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var)
 
     arr_variable[var].value = x;
 
-    return answer / tgamma(k+1);
+    return DIV_(NUM_(answer), NUM_(tgamma(k+1)));
 }
 
 #undef NUM_(num)                   DiffNewNodeNUM(num)

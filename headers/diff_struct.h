@@ -2,13 +2,28 @@
 #define _DIFF_STRUCT_
 
 #define VAR_CAPASITY  3
-#define OP_CAPASITY   12
+#define OP_CAPASITY   15
 #define TYPE_CAPASITY 3
 
 #include "work_with_text.h"
 
-enum Type_t         {NUM = 0, OP = 1, VAR = 2};
-enum Operator_val_t {ADD = 0, SUB = 1, MUL = 2, DIV = 3, DEG = 4, SIN = 5, COS = 6, LN = 7, TAN = 8, ASIN = 9, ACOS = 10, ATAN = 11};
+enum Type_t         {NUM  = 0, OP = 1, VAR = 2};
+enum Operator_val_t {ADD  = 0, 
+                     SUB  = 1, 
+                     MUL  = 2, 
+                     DIV  = 3, 
+                     DEG  = 4, 
+                     SIN  = 5, 
+                     COS  = 6, 
+                     LN   = 7, 
+                     TAN  = 8, 
+                     ASIN = 9, 
+                     ACOS = 10, 
+                     ATAN = 11, 
+                     SINH = 12,
+                     COSH = 13, 
+                     TANH = 14
+                    };
 enum Flag_t         {NO = 0, YES = 1};
 
 union Value_t

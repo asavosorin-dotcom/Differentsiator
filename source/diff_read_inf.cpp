@@ -117,7 +117,11 @@ DiffNode_t* GetCommand(const char** s)
 
     DiffNode_t* command_node = NULL;
 
+
     s += skip_space(*s);
+    
+    printf("in command [%s]\n", *s);
+    fflush(stdout);
 
     if (!isalpha(**s))
     {
@@ -172,6 +176,10 @@ DiffNode_t* GetDeg(const char** s)
     while (**s == '^')
     {
         (*s)++;
+
+        printf("%s\n", *s);
+        fflush(stdout);
+
         DiffNode_t* deg_node = GetCommand(s);
 
         command_node = DiffNewNodeOP(DEG, command_node, deg_node);

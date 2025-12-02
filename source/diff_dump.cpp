@@ -209,7 +209,7 @@ void DiffDumpLatexAnswer(DiffNode_t* node, double answer)
 
 void DiffDumpLatexDDX(DiffNode_t* node, DiffNode_t* diff_node, const char* d_var)
 {
-    PRINT_LATEX("\\subsection{}\n");
+    PRINT_LATEX("\\subsubsection{}\n");
     PRINT_LATEX("\\Large\n");
     PRINT_LATEX("$");
     PRINT_LATEX("\\frac{d}{d%s}(", d_var);
@@ -219,19 +219,31 @@ void DiffDumpLatexDDX(DiffNode_t* node, DiffNode_t* diff_node, const char* d_var
     PRINT_LATEX("$\n");
 }
 
-void DiffDumpLatex(DiffNode_t* node, const char* name) // дописать по возможности
+void DiffDumpLatex(DiffNode_t* node, const char* name) 
 {
-    PRINT_LATEX("\\section{%s}\n", name);
+    PRINT_LATEX("\\subsection{%s}\n", name);
     PRINT_LATEX("\\Large\n");
-    PRINT_LATEX("$");
-    // DiffDump(node, "in latex");
-    DiffDumpNodeLatex(node);
-    PRINT_LATEX("$\n");
+    if (node != NULL)
+    {
+        PRINT_LATEX("$");
+        DiffDumpNodeLatex(node);
+        PRINT_LATEX("$\n");
+    }
+}
+
+void DiffDumpLatexTitle(const char* title)
+{
+    PRINT_LATEX("\\section{%s}\n", title);
+    PRINT_LATEX("\\Large\n");
+    PRINT_LATEX("\n");
 }
 
 void DiffDumpLatexBegin(void)
-{
+{    
     PRINT_LATEX("\\documentclass{article}\n");
+    PRINT_LATEX("\\usepackage[utf8]{inputenc}\n");
+    PRINT_LATEX("\\usepackage[T2A]{fontenc}\n");
+    PRINT_LATEX("\\usepackage{graphicx}\n");
     PRINT_LATEX("\\title{DEBUG!!!}\n");
     PRINT_LATEX("\\begin{document}\n");
     PRINT_LATEX("\\maketitle\n");
@@ -241,6 +253,8 @@ void DiffDumpLatexEnd(void)
 {
     PRINT_LATEX("\\end{document}");
     fflush(file_latex);
+    system("pdflatex dump_latex");
+
 }
 
 #define PRINT_DAT(...) fprintf(file_dat, __VA_ARGS__);
@@ -302,28 +316,44 @@ void MakeGraphicFullInf(DiffNode_t* root)
     PRINT_SCRIPT("set ylabel \"Y\"\n");
     PRINT_SCRIPT("set grid\n");
     PRINT_SCRIPT("set xrange [0:10]\n");
-    PRINT_SCRIPT("set yrange [-3:3]\n");
+    PRINT_SCRIPT("set yrange [-10:10]\n");
 
     FILE* file_graph = fopen("graphic.txt", "w");
     MakeDots(root, file_graph, "x");
 
+    DiffDumpLatex(NULL, "Возьмем производную от уравнения");
     DiffNode_t* diff_root = DifferentExpression(root, "x");
     MakeDots(diff_root, file_graph, "x");
 
+    DiffDumpLatex(NULL, "Разложим функцию в ряд Тейлора для графика");
     DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
     MakeDots(teylor_node, file_graph, "x");
 
-    PRINT_SCRIPT("plot \"graphic.txt\" index 0 with linespoints lt rgb \"red\" pt 0 ps 0.5 title \"function\", \\ \n");
-    PRINT_SCRIPT("plot \"\" index 1 with linespoints lt rgb \"green\" pt 0 ps 0.5 title \"derivative\", \\ \n");
-    PRINT_SCRIPT("plot \"\" index 2 with linespoints lt rgb \"blue\" pt 0 ps 0.5 title \"Teylor func\", \\ \n");
+    PRINT_SCRIPT("plot \"graphic.txt\" index 0 with linespoints lt rgb \"red\" pt 0 ps 0.5 title \"function\", \\\n");
+    PRINT_SCRIPT("\"graphic.txt\" index 1 with linespoints lt rgb \"green\" pt 0 ps 0.5 title \"derivative\", \\\n");
+    PRINT_SCRIPT("\"graphic.txt\" index 2 with linespoints lt rgb \"blue\" pt 0 ps 0.5 title \"Teylor func\"\n");
 
     char command[50] = "gnuplot script.txt";
     
-    free(diff_root);
-    free(teylor_node);
+    DiffDtor(diff_root);
+    DiffDtor(teylor_node);
 
     fclose(script_file);
     system(command);
+}
+
+void DiffDumpLatexGraphicFullInf(DiffNode_t* root)
+{
+    MakeGraphicFullInf(root);
+
+    PRINT_LATEX("\\section{Graphik}");
+
+    PRINT_LATEX("\\begin{figure}[h]\n"
+    "\\centering \n"
+    "\\includegraphics[width=1\\textwidth]{graph_full.pdf} \n"
+    "\\caption{Full inf graphic} \n"
+    "\\label{fig:my_image} \n"
+    "\\end{figure}");
 }
 
 #undef PRINT_DAT

@@ -13,6 +13,9 @@ Operator_t arr_operators[OP_CAPASITY] = {
                                          "arcsin", CountHash("arcsin"),  "ARCSIN", ASIN,
                                          "arccos", CountHash("arccos"),  "ARCCOS", ACOS,
                                          "arctan", CountHash("arctan"),  "ARCTAN", ATAN,
+                                         "sinh"  , CountHash("sinh")  ,  "SINH"  , SINH, 
+                                         "cosh"  , CountHash("cosh")  ,  "COSH"  , COSH,
+                                         "tanh"  , CountHash("tanh")  ,  "TANH"  , TANH,
                                         };
 
 Variable_t arr_variable[VAR_CAPASITY] = { 

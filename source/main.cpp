@@ -11,55 +11,44 @@ int main(int argc, char* argv[])
     // DiffNode_t* root = DiffReadNode(&pos, code_tree);
 
     DiffNode_t* root = DiffRead(filename_read);
-
-    if (root == NULL)
-    {
-        DiffDtor(root);
-        return 0;
-    }
     
     GetVariableValue();
 
-    DiffDumpLatex(root, "First expression");
+    DiffDumpLatexTitle("Начало");
+    DiffDumpLatex(root, "Данная функция");
 
-    double x = DiffSolveExpresion(root);
-    printf("answer1 = %lg\n", x);
+    double answer1 = DiffSolveExpresion(root);
 
-    MakeGraphicFunc(root);
+    DiffDumpLatexAnswer(root, answer1);
 
-    MakeGraphicFullInf(root);
+    printf("answer1 = %lg\n", answer1);
 
-    // написать графики
+    // MakeGraphicFunc(root);
 
-
-    DiffNode_t* dif_root = DiffExpressionN(root, "x", 1);
+    
+    DiffDumpLatexTitle("Возьмем 3-ю производную");
+    DiffNode_t* dif_root = DiffExpressionN(root, "x", 3);
     double answer2 = DiffSolveExpresion(dif_root);
-
-    // DiffDump(dif_root, "before latex");
-    DiffDumpLatex(dif_root, "in main");
-
+    
     DiffDumpLatexAnswer(dif_root, answer2);
-
+    
     printf("answer2 = %lg\n", answer2);
-    // DiffDump(root, "dif_tree");
-
-    // DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
-
-    // DiffDumpLatex(teylor_node, "Teylor");
+    
+    DiffDumpLatexTitle("Разложим функцию в ряд Тейлора");
+    DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
+    
+    DiffDumpLatex(teylor_node, "Окончательно");
     // DiffDump(teylor_node, "Teylor");
-    // DiffDumpLatexAnswer(teylor_node, DiffSolveExpresion(teylor_node));  
-
-    // DiffDump(dif_root, "before opt 2");
-    // dif_root = DiffOptimiz(dif_root);
-    // DiffDumpLatex(dif_root, "first dif expression");
-    // DiffDump(dif_root, "123r4");
-
+    DiffDumpLatexAnswer(teylor_node, DiffSolveExpresion(teylor_node));
+    
+    DiffDumpLatexTitle("Построим график функции");
+    DiffDumpLatexGraphicFullInf(root);
+    
     DiffDumpLatexEnd();
-
+    
     DiffDump(root, "First dump");
     DiffDtor(dif_root);
-    // DiffDtor(teylor_node);
-    printf("-------------------------------------------------------\n");
+    DiffDtor(teylor_node);
     DiffDtor(root);
 }
 
