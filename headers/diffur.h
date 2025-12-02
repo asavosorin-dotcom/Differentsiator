@@ -36,8 +36,8 @@ DiffNode_t* DiffNewNodeVar(const char* d_var);
 DiffNode_t* DiffNewNodeNUM(double num);
 
 DiffNode_t* DiffCopyNode(DiffNode_t* node);
-DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var);
-DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n);
+DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var, int dump_flag);
+DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n, int dump_flag);
 
 DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var);
 DiffNode_t* TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var);

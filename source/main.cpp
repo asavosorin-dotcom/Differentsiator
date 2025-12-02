@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
     // MakeGraphicFunc(root);
 
     
-    DiffDumpLatexTitle("Возьмем 3-ю производную");
-    DiffNode_t* dif_root = DiffExpressionN(root, "x", 3);
+    DiffDumpLatexTitle("Возьмем производную");
+    DiffNode_t* dif_root = DiffExpressionN(root, "x", 1, DUMP_FLAG);
     double answer2 = DiffSolveExpresion(dif_root);
     
     DiffDumpLatexAnswer(dif_root, answer2);

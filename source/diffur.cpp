@@ -1,7 +1,7 @@
 #include "diffur.h"
 
-DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var);
-DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var);
+DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var, int dump_flag);
+DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var, int dump_flag);
 
 DiffNode_t* DiffNodeCtor(Type_t type, Value_t* val, DiffNode_t* parent)
 {
@@ -353,10 +353,10 @@ DiffNode_t* DiffNewNodeVar(const char* d_var)
 
 #define copyLeft   DiffCopyNode(node->left)
 #define copyRight  DiffCopyNode(node->right)
-#define diffLeft   DifferentExpression(node->left , d_var)
-#define diffRight  DifferentExpression(node->right, d_var)
+#define diffLeft   DifferentExpression(node->left , d_var, dump_flag)
+#define diffRight  DifferentExpression(node->right, d_var, dump_flag)
 
-#define DIFF_POW   diff_pow(node, d_var)
+#define DIFF_POW   diff_pow(node, d_var, dump_flag)
 
 #define NUM_(num)                    DiffNewNodeNUM(num)
 #define VAR_(d_var)                  DiffNewNodeVar(d_var)
@@ -402,14 +402,15 @@ DiffNode_t* DiffCopyNode(DiffNode_t* node)
 // написать функцию для пошагового дампа в дифференцировании 
 // объеденить switch case в одну функцию для дампа, чтобы перед общим ретерном поставить дамп в латех
 
-DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var)
+DiffNode_t* DifferentExpression(DiffNode_t* node, const char* d_var, int dump_flag)
 {
-    DiffNode_t* ret_node = diff_expression(node, d_var);
-    DiffDumpLatexDDX(node, ret_node, d_var);
+    DiffNode_t* ret_node = diff_expression(node, d_var, dump_flag);
+    ret_node = DiffOptimiz(ret_node);
+    if (dump_flag) DiffDumpLatexDDX(node, ret_node, d_var);
     return ret_node;
 }
 
-DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var)
+DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var, int dump_flag)
 {
     switch (node->type)
     {
@@ -480,7 +481,7 @@ DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var)
     }
 }
 
-DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var)
+DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var, int dump_flag)
 {
     if (node->right->type == NUM)
     {
@@ -507,18 +508,21 @@ char* Read_title(int* pos, char* buffer) // можно считывать double
     return buffer + *pos - len + 1;
 }
 
-DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n)
+DiffNode_t* DiffExpressionN(DiffNode_t* root, const char* d_var, int n, int dump_flag)
 {
     DiffNode_t* node0 = root;
     DiffNode_t* node1 = NULL;
 
+    // if (n == 0)
+    //     return node0;
+    
     for (int i = 0; i < n; i++)
     {
-            DiffDumpLatex(node0, "Производная");
-            PRINT_LATEX("\\newline Возьмем %d-ю производную\n", i + 1);
-            node1 = DifferentExpression(node0, d_var);
+            // DiffDumpLatex(node0, "Производная");
+            // PRINT_LATEX("\\newline Возьмем %d-ю производную\n", i + 1);
+            node1 = DifferentExpression(node0, d_var, dump_flag);
             node1 = DiffOptimiz(node1); 
-            DiffDumpLatexDDX(node0, node1, d_var);
+            // DiffDumpLatexDDX(node0, node1, d_var);
             // DiffDump(node1, "node1");
 
         if (node0 != root)
@@ -540,7 +544,13 @@ DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var)
     scanf("%lg", &a);
     
     DiffNode_t* teylor_node = NUM_(0);
-    
+
+    int var = isvariable(d_var);
+    double x = arr_variable[var].value;
+    arr_variable[var].value = a;
+    teylor_node = ADD_(teylor_node, NUM_(DiffSolveExpresion(node)));
+    arr_variable[var].value = x;
+
     for (int i = 0; i <= n; i++)
     {
         teylor_node = ADD_(teylor_node, MUL_(TeylorCoefCount(node, a, i, d_var), DEG_(SUB_(VAR_(d_var), NUM_(a)), NUM_(i))));
@@ -552,7 +562,7 @@ DiffNode_t* DiffTeylor(DiffNode_t* node, int n, const char* d_var)
 
 DiffNode_t* TeylorCoefCount(DiffNode_t* node, double a, int k, const char* d_var)
 {
-    DiffNode_t* diff_node = DiffExpressionN(node, d_var, k);
+    DiffNode_t* diff_node = DiffExpressionN(node, d_var, k, NO_DUMP_FLAG);
 
     int var = isvariable(d_var);
     double x = arr_variable[var].value;

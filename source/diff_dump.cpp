@@ -322,7 +322,7 @@ void MakeGraphicFullInf(DiffNode_t* root)
     MakeDots(root, file_graph, "x");
 
     DiffDumpLatex(NULL, "Возьмем производную от уравнения");
-    DiffNode_t* diff_root = DifferentExpression(root, "x");
+    DiffNode_t* diff_root = DifferentExpression(root, "x", NO_DUMP_FLAG);
     MakeDots(diff_root, file_graph, "x");
 
     DiffDumpLatex(NULL, "Разложим функцию в ряд Тейлора для графика");

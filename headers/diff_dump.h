@@ -8,6 +8,9 @@
 #include "colors.h"
 #include "diffur.h"
 
+#define DUMP_FLAG 1
+#define NO_DUMP_FLAG 0
+
 #define PRINT_IMAGE(...) fprintf(file_dump, __VA_ARGS__)
 #define PRINT_HTM(...)   fprintf(file_htm, __VA_ARGS__)
 #define PRINT_LATEX(...) fprintf(file_latex, __VA_ARGS__)
