@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 
     DiffDumpLatexAnswer(root, answer1);
 
-    printf("answer1 = %lg\n", answer1);
+    printf("answer = %lg\n", answer1);
 
     // MakeGraphicFunc(root);
 
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     
     DiffDumpLatexAnswer(dif_root, answer2);
     
-    printf("answer2 = %lg\n", answer2);
+    printf("answer after diff = %lg\n", answer2);
     
     DiffDumpLatexTitle("Разложим функцию в ряд Тейлора");
     DiffNode_t* teylor_node = DiffTeylor(root, 5, "x");
