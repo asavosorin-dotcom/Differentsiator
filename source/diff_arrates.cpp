@@ -1,4 +1,4 @@
-#include "diff_struct.h"
+#include "../headers/diff_struct.h"
 
 Operator_t arr_operators[OP_CAPASITY] = {
                                          "+",      CountHash("+"),       "ADD",    ADD,

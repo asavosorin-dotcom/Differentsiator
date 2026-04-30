@@ -1,4 +1,4 @@
-#include "diff_dump.h"
+#include "../headers/diff_dump.h"
 
 FILE* file_htm   = fopen("Logfile.htm"   , "w");
 FILE* file_latex = fopen("dump_latex.tex", "w");

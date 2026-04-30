@@ -1,4 +1,4 @@
-#include "diff_read_inf.h"
+#include "../headers/diff_read_inf.h"
 
 DiffNode_t* GetNumber     (const char** s);
 DiffNode_t* GetP          (const char** s);

@@ -1,4 +1,4 @@
-#include "work_with_text.h"
+#include "../headers/work_with_text.h"
 
 Buffer CreateBuffer(const char* filename) {
     

@@ -1,4 +1,4 @@
-#include "diff_optimiz.h"
+#include "../headers/diff_optimiz.h"
 
 static bool flag_change = 0;
 int nodeisnum(DiffNode_t* node, double num);

@@ -1,4 +1,4 @@
-#include "diffur.h"
+#include "../headers/diffur.h"
 
 DiffNode_t* diff_pow(DiffNode_t* node, const char* d_var, int dump_flag);
 DiffNode_t* diff_expression(DiffNode_t* node, const char* d_var, int dump_flag);
